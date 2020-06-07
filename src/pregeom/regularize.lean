@@ -100,6 +100,39 @@ begin
   }
 end
 
+private lemma reg_lift_finset [has_cl T] {W : finset T} : ↑W ⊆ reg_set T → ∃ V : finset (reg T), finset.image ι V = W := 
+begin
+  refine finset.induction_on W _ _,
+  {
+    intro h,
+    use ∅, 
+    trivial,
+  },
+  {
+    intros a W ha ind inc,
+    have : ↑W ⊆ reg_set T,
+    {
+      intros w hw,
+      apply inc,
+      simp [hw],
+    },
+    cases ind this with V hV,
+    have : ∃ b : reg T, b.val = a,
+    {
+      have : a ∈ reg_set T,
+      {
+        apply inc,
+        simp,
+      },
+      use ⟨a, this⟩,
+    },
+    cases this with b hb,
+    use insert b V,
+    rw [finset.image_insert, hb],
+    exact congr_arg (insert a) hV,
+  }
+end
+
 instance pregeom [pregeom T] : pregeom (reg T) := 
 begin
   split, intros x S hx,
@@ -109,9 +142,37 @@ begin
     rw mem_cl_iff_val_mem_cl at hx,
     simpa only [],
   },
-  cases pregeom.finchar this with W hW,
-  -- we need the statement that the preimage of a finite set under an injective map is a finite set.
-  sorry,
+  rcases pregeom.finchar this with ⟨W, hW1, hW2⟩,
+  have : ↑W ⊆ reg_set T, 
+  {
+    -- follows from hW1
+    intros w hw,
+    suffices : ι '' S ⊆ reg_set T, {apply this, apply hW1, assumption},
+    intros s hs,
+    rcases hs with ⟨s1, hs1, hs2⟩,
+    rw ←hs2,
+    exact s1.2,
+  },
+  replace this := reg_lift_finset this,
+  cases this with V hV,
+  use V,
+  split,
+  {
+    -- follows from hV and hW1
+    intros v hv,
+    rw ←hV at hW1,
+    rw finset.coe_image at hW1,
+    have : v.val ∈ ι '' ↑V, by exact set.mem_image_of_mem ι hv,
+    replace this := hW1 this,
+    rcases this with ⟨vv, hvv1, hvv2⟩,
+    have : v = vv, by exact subtype.eq (eq.symm hvv2),
+    rwa this,
+  },
+  {
+    -- follows from hV and hW2
+    rw [←hV, finset.coe_image] at hW2,
+    simpa,
+  }
 end
 
 end reg
