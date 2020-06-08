@@ -175,4 +175,21 @@ begin
   }
 end
 
+instance reg_pregeom [pregeom T] : reg_pregeom (reg T) :=
+begin
+  split,
+  ext, split,
+  {
+    intro h,
+    cases x with x hx,
+    replace h : x ∈ cl (ι '' ∅), by assumption,
+    rw set.image_empty at h,
+    contradiction,
+  },
+  {
+    intro,
+    exfalso, assumption,
+  }
+end
+
 end reg

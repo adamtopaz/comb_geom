@@ -16,8 +16,14 @@ class inf_pregeom extends has_cl T :=
 (idempotent {S} : cl (cl S) = cl S)
 (exchange {x y} {S} : x ∈ cl (insert y S) → x ∉ cl S → y ∈ cl (insert x S))
 
+class inf_reg_pregeom extends inf_pregeom T :=
+(regular : cl ∅ = ∅)
+
 class pregeom extends inf_pregeom T := 
 (finchar {x} {S} : x ∈ cl S → ∃ U : finset T, ↑U ⊆ S ∧ x ∈ cl ↑U)
+
+class reg_pregeom extends pregeom T :=
+(regular : cl ∅ = ∅)
 
 namespace has_cl
 
