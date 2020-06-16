@@ -296,7 +296,8 @@ instance has_cl_instance [has_cl T] : has_cl (geom T) :=
 
 variable [pregeom T]
 
-lemma pi_mem_cl_iff_mem_cl_preimage {t : reg T} {S : set (geom T)} : 
+
+lemma pi_mem_cl_iff_mem_cl_pullback {t : reg T} {S : set (geom T)} : 
   t ∈ cl (π ⁻¹' S) ↔ π t ∈ cl S :=
 begin
   split; intro h,
@@ -317,7 +318,7 @@ begin
     refine monotone _ hx,
     intros y hy,
     change π y ∈ _ at hy,
-    rwa ←pi_mem_cl_iff_mem_cl_preimage at hy,
+    rwa ←pi_mem_cl_iff_mem_cl_pullback at hy,
   },
   {
     -- This is the same as the inclusive proof in the pregeom instance.
@@ -371,7 +372,7 @@ begin
   }
 end
 
-lemma cl_preimage_insert {t : reg T} {S : set (geom T)} : cl (π ⁻¹' insert (π t) S) = cl (insert t (π ⁻¹' S)) := 
+lemma cl_pullback_insert {t : reg T} {S : set (geom T)} : cl (π ⁻¹' insert (π t) S) = cl (insert t (π ⁻¹' S)) := 
 begin
   rw pullback_insert,
   unfold cls,
@@ -411,7 +412,7 @@ begin
     },
     apply monotone this,
     rw ←ht at ha,
-    rwa pi_mem_cl_iff_mem_cl_preimage,
+    rwa pi_mem_cl_iff_mem_cl_pullback,
   },
   {
     ext, split; intro hx,
@@ -431,15 +432,15 @@ begin
     rcases quot.exists_rep y with ⟨t,rfl⟩,
     change _ ∈ cl ( π ⁻¹' insert (π _) _) at ha,
     change π t ∈ _,
-    rw cl_preimage_insert at ha,
+    rw cl_pullback_insert at ha,
     have : a ∉ cl (π ⁻¹' S), 
     {
       intro contra,
-      rw pi_mem_cl_iff_mem_cl_preimage at contra,
+      rw pi_mem_cl_iff_mem_cl_pullback at contra,
       contradiction,
     },
     replace this := exchange ha this,
-    rw [←pi_mem_cl_iff_mem_cl_preimage, cl_preimage_insert],
+    rw [←pi_mem_cl_iff_mem_cl_pullback, cl_pullback_insert],
     assumption,
   },
   {
@@ -455,7 +456,7 @@ begin
     },
     {
       rw finset.coe_image,
-      rw ←pi_mem_cl_iff_mem_cl_preimage, 
+      rw ←pi_mem_cl_iff_mem_cl_pullback, 
       refine monotone _ hW2,
       intros w hw,
       change π w ∈ _,
