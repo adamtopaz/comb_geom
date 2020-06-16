@@ -119,11 +119,9 @@ end
 lemma cl_set_union_cl_eq_cl_union [pregeom T] {A B : set T} : cl (A ∪ cl B) = cl (A ∪ B) := 
 calc cl (A ∪ cl B) = cl (A ⊔ cl B) : rfl
 ... = cl (cl B ⊔ A) : by rw sup_comm
-... = cl (cl B ∪ A) : rfl
 ... = cl (B ∪ A) : cl_cl_union_set_eq_cl_union
 ... = cl (B ⊔ A) : rfl
 ... = cl (A ⊔ B) : by rw sup_comm
-... = cl (A ∪ B) : rfl
 
 lemma cl_cl_union_cl_eq_cl_union [pregeom T] {A B : set T} : cl (cl A ∪ cl B) = cl (A ∪ B) := 
 calc cl (cl A ∪ cl B) = cl (cl A ∪ B) : cl_set_union_cl_eq_cl_union
