@@ -24,7 +24,7 @@ def cls [has_cl T] (x : T) := cl ({x} : set T)
 lemma mem_cls [pregeom T] {x : T} : x ∈ cls x := inclusive (set.mem_singleton x)
 
 @[simp]
-lemma cls_le [pregeom T] {x : T} {S : set T} : cls x ≤ cl S ↔ x ∈ cl S := 
+lemma cls_le_iff_mem_cl [pregeom T] {x : T} {S : set T} : cls x ≤ cl S ↔ x ∈ cl S := 
 begin
   split,
   {
@@ -42,7 +42,7 @@ begin
 end
 
 @[simp]
-lemma Sup_all_le_cl [pregeom T] {S : set T} : Sup { A | ∃ x, A = cls x ∧ A ≤ cl S } = cl S :=
+lemma Sup_le_eq_cl [pregeom T] {S : set T} : Sup { A | ∃ x, A = cls x ∧ A ≤ cl S } = cl S :=
 begin
   ext, split,
   {
@@ -53,19 +53,19 @@ begin
   {
     intro hx,
     refine ⟨cls x, ⟨x,rfl, _⟩,_⟩,
-    { rw cls_le, exact hx },
+    { rw cls_le_iff_mem_cl, exact hx },
     { exact mem_cls },
   }
 end
 
-lemma exchange_cls [pregeom T] {u v : T} (h1 : u ∈ cls v) (h2 : u ∉ cl (∅ : set T))  : v ∈ cls u :=
+lemma exchange_cls [pregeom T] {u v : T} (u_in_cls : u ∈ cls v) (u_regular : u ∉ cl (∅ : set T))  : v ∈ cls u :=
 begin
   unfold cls at *,
   rw set.singleton_def at *,
-  exact exchange h1 h2,
+  exact exchange u_in_cls u_regular,
 end
 
-lemma cls_le_of_mem [pregeom T] {x : T} {S : set T} : x ∈ cl S ↔ cls x ≤ cl S := 
+lemma mem_cl_iff_cls_le_cl [pregeom T] {x : T} {S : set T} : x ∈ cl S ↔ cls x ≤ cl S := 
 begin
   split; intro hx,
   {
@@ -84,7 +84,7 @@ begin
   }
 end
 
-lemma cl_cl_union [pregeom T] {A B : set T} : cl (cl A ∪ B) = cl (A ∪ B) := 
+lemma cl_cl_union_set_eq_cl_union [pregeom T] {A B : set T} : cl (cl A ∪ B) = cl (A ∪ B) := 
 begin
   ext, split; intro h,
   {
@@ -116,17 +116,17 @@ begin
   }
 end
 
-lemma cl_union_cl [pregeom T] {A B : set T} : cl (A ∪ cl B) = cl (A ∪ B) := 
+lemma cl_set_union_cl_eq_cl_union [pregeom T] {A B : set T} : cl (A ∪ cl B) = cl (A ∪ B) := 
 calc cl (A ∪ cl B) = cl (A ⊔ cl B) : rfl
 ... = cl (cl B ⊔ A) : by rw sup_comm
 ... = cl (cl B ∪ A) : rfl
-... = cl (B ∪ A) : cl_cl_union
+... = cl (B ∪ A) : cl_cl_union_set_eq_cl_union
 ... = cl (B ⊔ A) : rfl
 ... = cl (A ⊔ B) : by rw sup_comm
 ... = cl (A ∪ B) : rfl
 
-lemma cl_cl_union_cl [pregeom T] {A B : set T} : cl (cl A ∪ cl B) = cl (A ∪ B) := 
-calc cl (cl A ∪ cl B) = cl (cl A ∪ B) : cl_union_cl
-... = cl (A ∪ B) : cl_cl_union
+lemma cl_cl_union_cl_eq_cl_union [pregeom T] {A B : set T} : cl (cl A ∪ cl B) = cl (A ∪ B) := 
+calc cl (cl A ∪ cl B) = cl (cl A ∪ B) : cl_set_union_cl_eq_cl_union
+... = cl (A ∪ B) : cl_cl_union_set_eq_cl_union
 
 end pregeom
