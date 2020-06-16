@@ -24,12 +24,14 @@ protected def rel [has_cl T] : reg T → reg T → Prop :=
 
 variable {T}
 
+-- Having equivalent closures is an equivalence relation on the regular elements.
 protected theorem is_equiv [has_cl T] : equivalence (reg.rel T) := 
 begin
   refine ⟨_,_,_⟩,
   {
     unfold reflexive reg.rel,
-    intro x, refl,
+    intro x,
+    refl,
   },
   {
     unfold symmetric reg.rel,
@@ -39,7 +41,7 @@ begin
   {
     unfold transitive reg.rel,
     intros x y z h1 h2,
-    rwa [h1,h2],
+    rwa [h1, h2],
   }
 end
 
@@ -47,24 +49,14 @@ end
 lemma cl_union_cl_empty [pregeom T] {A : set T} : cl (cl (∅ : set T) ∪ A) = cl A := 
 begin
   rw pregeom.cl_cl_union_set_eq_cl_union,
-  have : cl ∅ ≤ cl A, 
-  {
-    refine monotone _, 
-    tauto,
-  },
-  replace this : cl (∅ : set T) ∪ cl A = cl A,
-  {
-    ext, split; intro h,
-    { cases h, { apply this, assumption }, { assumption }},
-    { right, assumption }
-  },
-  rwa set.empty_union,
+  rw set.empty_union,
 end
 
 @[simp]
 lemma cl_reg_set_inter [pregeom T] {S : set T} : cl (reg_set T ∩ S) = cl S := 
 begin
-  ext, split,
+  ext,
+  split,
   {
     intro h,
     have : reg_set T ∩ S ≤ S, by {intros x hx, cases hx, assumption},
@@ -124,14 +116,10 @@ begin
     exact set.mem_image_of_mem ι hs,
   },
   {
-    -- this needs some cleaning up...
     intros u hu,
-    change u.val ∈ cl (ι '' B),
+    unfold cl at *,
     suffices : ι '' A ≤ ι '' B, by exact monotone this hu,
-    intros x hx,
-    rcases hx with ⟨y,h,rfl⟩,
-    suffices : y ∈ B, by exact set.mem_image_of_mem ι this,
-    exact a h,
+    exact subtype.le_im_le A B a,
   },
   {
     unfold cl,    
