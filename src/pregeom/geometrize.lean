@@ -46,7 +46,7 @@ end
 @[simp]
 lemma cl_union_cl_empty [pregeom T] {A : set T} : cl (cl (∅ : set T) ∪ A) = cl A := 
 begin
-  rw [←pregeom.cl_cl_union_cl, idempotent],
+  rw pregeom.cl_cl_union_set_eq_cl_union,
   have : cl ∅ ≤ cl A, 
   {
     refine monotone _, 
@@ -58,7 +58,7 @@ begin
     { cases h, { apply this, assumption }, { assumption }},
     { right, assumption }
   },
-  rw [this, idempotent],
+  rwa set.empty_union,
 end
 
 @[simp]
@@ -214,7 +214,7 @@ begin
     {
       intro h2,
       unfold cls at h1,
-      rw ←cls_le at h1,
+      rw ←cls_le_iff_mem_cl at h1,
       exact h1 h2,
     },
     {
@@ -222,7 +222,7 @@ begin
       replace h1 := exchange_cls h1 _,
       {
         unfold cls at h1,
-        rw ←cls_le at h1,
+        rw ←cls_le_iff_mem_cl at h1,
         exact h1 h2,
       },
       {
@@ -255,7 +255,7 @@ begin
   suffices : cls y ≤ cl S, by exact this mem_cls,
   rw eq_iff at h,
   rw ←h,
-  rw ←cls_le_of_mem,
+  rw cls_le_iff_mem_cl,
   assumption,
 end
 
@@ -356,7 +356,7 @@ lemma cl_preimage_insert {t : reg T} {S : set (geom T)} : cl (π ⁻¹' insert (
 begin
   rw pullback_insert,
   unfold cls,
-  rw cl_cl_union,
+  rw cl_cl_union_set_eq_cl_union,
   rw set.singleton_union,
 end
 
@@ -455,7 +455,7 @@ begin
   rw pullback_insert at hz,
   change π z = π _,
   unfold cls at hz,
-  rw pregeom.cl_cl_union at hz,
+  rw pregeom.cl_cl_union_set_eq_cl_union at hz,
   simp only [insert_emptyc_eq, set.singleton_union, set.preimage_empty] at hz,
   change z ∈ cls w at hz,
   rwa eq_iff',
