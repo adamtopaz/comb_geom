@@ -2,6 +2,38 @@ import .basic
 import ..subtype.helpers
 import data.finset
 
+/-!
+# What is going on here?!
+
+Start with a pregeometry T.
+Define 
+
+reg T
+
+to be the subtype of regular elements, where an element t ∈ T is regular
+provided that t ∉ cl ∅
+
+ι : (reg T) ↪ T
+
+is the canonical inclusion.
+
+Then we define an equiv. relation on reg T, by saying that x and y are equivalent
+provided that x ∈ cl {y} (this is equivalent to cl {x} = cl {y}).
+
+Define (geom T) to be the quotient of (reg T) relative to this relation.
+
+And
+
+π : (reg T) ↠ (geom T) 
+
+is the canonical projection.
+
+When referring to ι, we should use words like "image" and "preimage".
+
+When referring to π, we should use words like "pushforward" and "pullback".
+
+-/
+
 open_locale classical
 
 namespace pregeom
