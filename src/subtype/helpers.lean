@@ -46,4 +46,22 @@ begin
   exact b.2
 end
 
+@[simp]
+lemma le_im_sub (A B : set (subtype S)) : A ≤ B → A ⊆ B :=
+begin
+  intros le a ha,
+  apply le,
+  assumption,
+end
+
+@[simp]
+lemma le_im_le (A B : set (subtype S)) : A ≤ B → ι '' A ≤ ι '' B :=
+begin
+  intros le a ha,
+  have sus : A ⊆ B := le_im_sub A B le,
+  replace sus := set.image_subset ι sus,
+  apply sus,
+  assumption,
+end
+
 end subtype
