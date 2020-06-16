@@ -127,4 +127,11 @@ lemma cl_cl_union_cl_eq_cl_union [pregeom T] {A B : set T} : cl (cl A ∪ cl B) 
 calc cl (cl A ∪ cl B) = cl (cl A ∪ B) : cl_set_union_cl_eq_cl_union
 ... = cl (A ∪ B) : cl_cl_union_set_eq_cl_union
 
+@[simp]
+lemma cl_union_cl_empty [pregeom T] {A : set T} : cl (cl (∅ : set T) ∪ A) = cl A := 
+begin
+  rw pregeom.cl_cl_union_set_eq_cl_union,
+  rw set.empty_union,
+end
+
 end pregeom

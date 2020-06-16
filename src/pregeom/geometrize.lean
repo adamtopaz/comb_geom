@@ -78,13 +78,6 @@ begin
 end
 
 @[simp]
-lemma cl_union_cl_empty [pregeom T] {A : set T} : cl (cl (∅ : set T) ∪ A) = cl A := 
-begin
-  rw pregeom.cl_cl_union_set_eq_cl_union,
-  rw set.empty_union,
-end
-
-@[simp]
 lemma cl_reg_set_inter [pregeom T] {S : set T} : cl (reg_set T ∩ S) = cl S := 
 begin
   ext,
@@ -111,7 +104,6 @@ begin
     exact h,
   }
 end
-
 
 private lemma reg_lift_finset [has_cl T] {W : finset T} : ↑W ⊆ reg_set T → ∃ V : finset (reg T), finset.image ι V = W := 
 begin
@@ -208,6 +200,7 @@ end reg
 protected def setoid [has_cl T] : setoid (reg T) := ⟨reg.rel T, reg.is_equiv⟩
 
 def geom [has_cl T] := quotient (pregeom.setoid T)
+
 
 namespace geom
 
