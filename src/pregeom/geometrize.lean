@@ -149,9 +149,8 @@ begin
   },
   {
     intros u hu,
-    unfold cl at *,
     suffices : ι '' A ≤ ι '' B, by exact monotone this hu,
-    exact subtype.le_im_le A B a,
+    apply set.monotone_image a,
   },
   {
     unfold cl,    
