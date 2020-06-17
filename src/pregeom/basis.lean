@@ -1,6 +1,8 @@
+import order.zorn
 import tactic
 import .basic
 import ..subtype.helpers
+import data.set
 
 open_locale classical
 
@@ -184,7 +186,109 @@ begin
   }
 end
 
-theorem exists_basis : ∃ S : set T, is_basis S := sorry 
+variable (T)
+def indep_sets := { S : set T // is_indep S }
+variable {T}
+def indep_sets_rel : indep_sets T → indep_sets T → Prop := λ A B, A.1 ≤ B.1
+def indep_sets_union (S : set (indep_sets T)) : set T := Sup (subtype.val '' S)
+
+lemma union_chain_indep {S : set (indep_sets T)} :
+  zorn.chain indep_sets_rel S → is_indep (indep_sets_union S) :=
+begin
+  intros zorn t ht contra,
+  rcases finchar contra with ⟨A,hA1,hA2⟩,
+  suffices claim : ∀ A : finset T, ↑A ≤ indep_sets_union S - {t} →
+    ∃ B : indep_sets T, B ∈ S ∧ t ∈ B.val ∧ ↑A ≤ B.val,
+  {
+    replace claim := claim A hA1,
+    rcases claim with ⟨⟨B,hB⟩,hB1,hB2,hB3⟩,
+    dsimp at hB2 hB3,
+    have : ↑A ≤ B - {t},
+    {
+      intros a ha,
+      refine ⟨hB3 ha,_⟩,
+      dsimp,
+      change a ≠ t,
+      replace ha := hA1 ha,
+      finish,
+    },
+    replace hA2 := monotone this hA2,
+    unfold is_indep at hB,
+    replace hB := hB hB2,
+    contradiction,
+  },
+  refine finset.induction _ _,
+  {
+    intro,
+    rcases ht with ⟨B,⟨C,hC1,hC2⟩,h1⟩,
+    use C,
+    tidy,
+  },
+  {
+    rintros a B ha ind useful,
+    have : ↑B ≤ indep_sets_union S - {t}, 
+    {
+      intros b hb,
+      apply useful,
+      finish,
+    },
+    replace ind := ind this,
+    rcases ind with ⟨C,hC1,hC2,hC3⟩,
+    have : a ∈ indep_sets_union S - {t}, 
+    {
+      apply useful,
+      simp,
+    },
+    rcases this with ⟨⟨D,⟨⟨E,hE1,rfl⟩,hE3⟩⟩, h3⟩,
+    by_cases eq : C = E,
+    {
+      rw eq at *,
+      use E,
+      refine ⟨hC1,hC2,_⟩,
+      tidy,
+    },
+    {
+      cases @zorn _ hC1 _ hE1 eq,
+      { use E, tidy, },
+      { use C, tidy, }
+    }
+  }
+end
+
+theorem exists_basis : ∃ S : set T, is_basis S :=  
+begin
+  have zorn := @zorn.exists_maximal_of_chains_bounded 
+    (indep_sets T)
+    (λ A B, A.1 ≤ B.1) _ _,
+  {
+    rcases zorn with ⟨⟨B,hB1⟩,hB2⟩,
+    use B,
+    rw basis_iff_maximal_indep,
+    refine ⟨@hB1,_⟩,
+    intros S' h1 h2,
+    replace hB2 := hB2 ⟨S',@h2⟩ h1,
+    rw le_antisymm_iff,
+    exact ⟨h1,hB2⟩, 
+  },
+  {
+    intro C,
+    intro hZ,
+    refine ⟨⟨Sup (subtype.val '' C),_⟩,_⟩,
+    {
+      apply union_chain_indep,
+      assumption,
+    },
+    { 
+      intros,
+      dsimp,
+      cases a with a ha,
+      dsimp at *,
+      refine le_Sup _,
+      tidy,
+    }
+  },
+  { tidy, }
+end
 
 end basis
 end pregeom
