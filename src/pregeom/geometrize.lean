@@ -2,6 +2,38 @@ import .basic
 import ..subtype.helpers
 import data.finset
 
+/-!
+# What is going on here?!
+
+Start with a pregeometry T.
+Define 
+
+reg T
+
+to be the subtype of regular elements, where an element t ∈ T is regular
+provided that t ∉ cl ∅
+
+ι : (reg T) ↪ T
+
+is the canonical inclusion.
+
+Then we define an equiv. relation on reg T, by saying that x and y are equivalent
+provided that x ∈ cl {y} (this is equivalent to cl {x} = cl {y}).
+
+Define (geom T) to be the quotient of (reg T) relative to this relation.
+
+And
+
+π : (reg T) ↠ (geom T) 
+
+is the canonical projection.
+
+When referring to ι, we should use words like "image" and "preimage".
+
+When referring to π, we should use words like "pushforward" and "pullback".
+
+-/
+
 open_locale classical
 
 namespace pregeom
@@ -24,12 +56,14 @@ protected def rel [has_cl T] : reg T → reg T → Prop :=
 
 variable {T}
 
+-- Having equivalent closures is an equivalence relation on the regular elements.
 protected theorem is_equiv [has_cl T] : equivalence (reg.rel T) := 
 begin
   refine ⟨_,_,_⟩,
   {
     unfold reflexive reg.rel,
-    intro x, refl,
+    intro x,
+    refl,
   },
   {
     unfold symmetric reg.rel,
@@ -39,32 +73,15 @@ begin
   {
     unfold transitive reg.rel,
     intros x y z h1 h2,
-    rwa [h1,h2],
+    rwa [h1, h2],
   }
-end
-
-@[simp]
-lemma cl_union_cl_empty [pregeom T] {A : set T} : cl (cl (∅ : set T) ∪ A) = cl A := 
-begin
-  rw [←pregeom.cl_cl_union_cl, idempotent],
-  have : cl ∅ ≤ cl A, 
-  {
-    refine monotone _, 
-    tauto,
-  },
-  replace this : cl (∅ : set T) ∪ cl A = cl A,
-  {
-    ext, split; intro h,
-    { cases h, { apply this, assumption }, { assumption }},
-    { right, assumption }
-  },
-  rw [this, idempotent],
 end
 
 @[simp]
 lemma cl_reg_set_inter [pregeom T] {S : set T} : cl (reg_set T ∩ S) = cl S := 
 begin
-  ext, split,
+  ext,
+  split,
   {
     intro h,
     have : reg_set T ∩ S ≤ S, by {intros x hx, cases hx, assumption},
@@ -87,7 +104,6 @@ begin
     exact h,
   }
 end
-
 
 private lemma reg_lift_finset [has_cl T] {W : finset T} : ↑W ⊆ reg_set T → ∃ V : finset (reg T), finset.image ι V = W := 
 begin
@@ -124,14 +140,9 @@ begin
     exact set.mem_image_of_mem ι hs,
   },
   {
-    -- this needs some cleaning up...
     intros u hu,
-    change u.val ∈ cl (ι '' B),
     suffices : ι '' A ≤ ι '' B, by exact monotone this hu,
-    intros x hx,
-    rcases hx with ⟨y,h,rfl⟩,
-    suffices : y ∈ B, by exact set.mem_image_of_mem ι this,
-    exact a h,
+    apply set.monotone_image a,
   },
   {
     unfold cl,    
@@ -190,6 +201,7 @@ protected def setoid [has_cl T] : setoid (reg T) := ⟨reg.rel T, reg.is_equiv�
 
 def geom [has_cl T] := quotient (pregeom.setoid T)
 
+
 namespace geom
 
 variable {T}
@@ -214,7 +226,7 @@ begin
     {
       intro h2,
       unfold cls at h1,
-      rw ←cls_le at h1,
+      rw ←cls_le_iff_mem_cl at h1,
       exact h1 h2,
     },
     {
@@ -222,7 +234,7 @@ begin
       replace h1 := exchange_cls h1 _,
       {
         unfold cls at h1,
-        rw ←cls_le at h1,
+        rw ←cls_le_iff_mem_cl at h1,
         exact h1 h2,
       },
       {
@@ -255,7 +267,7 @@ begin
   suffices : cls y ≤ cl S, by exact this mem_cls,
   rw eq_iff at h,
   rw ←h,
-  rw ←cls_le_of_mem,
+  rw cls_le_iff_mem_cl,
   assumption,
 end
 
@@ -277,7 +289,7 @@ instance has_cl_instance [has_cl T] : has_cl (geom T) :=
 
 variable [pregeom T]
 
-lemma pi_mem_cl_iff_mem_cl_preimage {t : reg T} {S : set (geom T)} : 
+lemma pi_mem_cl_iff_mem_cl_pullback {t : reg T} {S : set (geom T)} : 
   t ∈ cl (π ⁻¹' S) ↔ π t ∈ cl S :=
 begin
   split; intro h,
@@ -290,6 +302,24 @@ begin
   }
 end
 
+private lemma inclusive_helper {S : set (geom T)} : S ≤ cl S :=
+begin
+  intros s hs,
+  rcases quot.exists_rep s with ⟨t,ht⟩,
+  change π _ = _ at ht,
+  refine ⟨t,_,ht⟩,
+  suffices : cls t ≤ π ⁻¹' S,
+  {
+    apply inclusive,
+    apply this,
+    apply mem_cls,
+  },
+  intros u hu,
+  change π u ∈ S,
+  rw ←eq_iff' at hu,
+  rwa [hu,ht],
+end
+
 lemma cl_pullback_cl_eq_cl_pullback {S : set (geom T)} : cl (π ⁻¹' cl S) = cl (π ⁻¹' S) := 
 begin
   ext, split; intro hx,
@@ -298,27 +328,11 @@ begin
     refine monotone _ hx,
     intros y hy,
     change π y ∈ _ at hy,
-    rwa ←pi_mem_cl_iff_mem_cl_preimage at hy,
+    rwa ←pi_mem_cl_iff_mem_cl_pullback at hy,
   },
   {
-    -- This is the same as the inclusive proof in the pregeom instance.
-    -- Should be made into a seaprate lemma to avoid repetition
     refine monotone _ hx,
-    refine set.preimage_mono _,
-    intros s hs,
-    rcases quot.exists_rep s with ⟨t,ht⟩,
-    change π _ = _ at ht,
-    refine ⟨t,_,ht⟩,
-    suffices : cls t ≤ π ⁻¹' S,
-    {
-      apply inclusive,
-      apply this,
-      apply mem_cls,
-    },
-    intros u hu,
-    change π u ∈ S,
-    rw ←eq_iff' at hu,
-    rwa [hu,ht],
+    exact set.preimage_mono inclusive_helper,
   }
 end
 
@@ -329,34 +343,22 @@ begin
   {
     change π x ∈ _ at hx,
     cases hx,
-    {
-      left,
-      rwa eq_iff' at hx,
-    },
-    {
-      right,
-      exact hx,
-    }
+    { left, rwa eq_iff' at hx, },
+    { right, exact hx, },
   },
   {
     change π x ∈ _,
     cases hx,
-    {
-      left,
-      rwa eq_iff',
-    },
-    {
-      right,
-      exact hx,
-    }
+    { left, rwa eq_iff', },
+    { right, exact hx, },
   }
 end
 
-lemma cl_preimage_insert {t : reg T} {S : set (geom T)} : cl (π ⁻¹' insert (π t) S) = cl (insert t (π ⁻¹' S)) := 
+lemma cl_pullback_insert {t : reg T} {S : set (geom T)} : cl (π ⁻¹' insert (π t) S) = cl (insert t (π ⁻¹' S)) := 
 begin
   rw pullback_insert,
   unfold cls,
-  rw cl_cl_union,
+  rw cl_cl_union_set_eq_cl_union,
   rw set.singleton_union,
 end
 
@@ -364,20 +366,7 @@ instance pregeom_instance : pregeom (geom T) :=
 begin
   split; intros,
   {
-    intros s hs,
-    rcases quot.exists_rep s with ⟨t,ht⟩,
-    change π _ = _ at ht,
-    refine ⟨t,_,ht⟩,
-    suffices : cls t ≤ π ⁻¹' S, 
-    {
-      apply inclusive,
-      apply this,
-      apply mem_cls,
-    },
-    intros u hu,
-    change π u ∈ S,
-    rw ←eq_iff' at hu,
-    rwa [hu, ht],
+    exact inclusive_helper,
   },
   {
     intros a ha,
@@ -392,7 +381,7 @@ begin
     },
     apply monotone this,
     rw ←ht at ha,
-    rwa pi_mem_cl_iff_mem_cl_preimage,
+    rwa pi_mem_cl_iff_mem_cl_pullback,
   },
   {
     ext, split; intro hx,
@@ -412,15 +401,15 @@ begin
     rcases quot.exists_rep y with ⟨t,rfl⟩,
     change _ ∈ cl ( π ⁻¹' insert (π _) _) at ha,
     change π t ∈ _,
-    rw cl_preimage_insert at ha,
+    rw cl_pullback_insert at ha,
     have : a ∉ cl (π ⁻¹' S), 
     {
       intro contra,
-      rw pi_mem_cl_iff_mem_cl_preimage at contra,
+      rw pi_mem_cl_iff_mem_cl_pullback at contra,
       contradiction,
     },
     replace this := exchange ha this,
-    rw [←pi_mem_cl_iff_mem_cl_preimage, cl_preimage_insert],
+    rw [←pi_mem_cl_iff_mem_cl_pullback, cl_pullback_insert],
     assumption,
   },
   {
@@ -436,7 +425,7 @@ begin
     },
     {
       rw finset.coe_image,
-      rw ←pi_mem_cl_iff_mem_cl_preimage, 
+      rw ←pi_mem_cl_iff_mem_cl_pullback, 
       refine monotone _ hW2,
       intros w hw,
       change π w ∈ _,
@@ -455,9 +444,8 @@ begin
   rw pullback_insert at hz,
   change π z = π _,
   unfold cls at hz,
-  rw pregeom.cl_cl_union at hz,
+  rw pregeom.cl_cl_union_set_eq_cl_union at hz,
   simp only [insert_emptyc_eq, set.singleton_union, set.preimage_empty] at hz,
-  change z ∈ cls w at hz,
   rwa eq_iff',
 end
 
@@ -467,11 +455,7 @@ begin
   {
     intro x,
     ext y, split; intro hy,
-    {
-      change y = x,
-      apply mem_cls_geom,
-      assumption,
-    },
+    { apply mem_cls_geom, assumption, },
     {
       change y = x at hy,
       rw hy,
