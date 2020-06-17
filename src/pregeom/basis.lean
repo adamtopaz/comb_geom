@@ -187,12 +187,12 @@ begin
 end
 
 variable (T)
-def indep_sets := { S : set T // is_indep S }
+private def indep_sets := { S : set T // is_indep S }
 variable {T}
-def indep_sets_rel : indep_sets T → indep_sets T → Prop := λ A B, A.1 ≤ B.1
-def indep_sets_union (S : set (indep_sets T)) : set T := Sup (subtype.val '' S)
+private def indep_sets_rel : indep_sets T → indep_sets T → Prop := λ A B, A.1 ≤ B.1
+private def indep_sets_union (S : set (indep_sets T)) : set T := Sup (subtype.val '' S)
 
-lemma union_chain_indep {S : set (indep_sets T)} :
+private lemma union_chain_indep {S : set (indep_sets T)} :
   zorn.chain indep_sets_rel S → is_indep (indep_sets_union S) :=
 begin
   intros zorn t ht contra,
