@@ -289,7 +289,6 @@ instance has_cl_instance [has_cl T] : has_cl (geom T) :=
 
 variable [pregeom T]
 
-
 lemma pi_mem_cl_iff_mem_cl_pullback {t : reg T} {S : set (geom T)} : 
   t ∈ cl (π ⁻¹' S) ↔ π t ∈ cl S :=
 begin
@@ -303,6 +302,24 @@ begin
   }
 end
 
+private lemma inclusive_helper {S : set (geom T)} : S ≤ cl S :=
+begin
+  intros s hs,
+  rcases quot.exists_rep s with ⟨t,ht⟩,
+  change π _ = _ at ht,
+  refine ⟨t,_,ht⟩,
+  suffices : cls t ≤ π ⁻¹' S,
+  {
+    apply inclusive,
+    apply this,
+    apply mem_cls,
+  },
+  intros u hu,
+  change π u ∈ S,
+  rw ←eq_iff' at hu,
+  rwa [hu,ht],
+end
+
 lemma cl_pullback_cl_eq_cl_pullback {S : set (geom T)} : cl (π ⁻¹' cl S) = cl (π ⁻¹' S) := 
 begin
   ext, split; intro hx,
@@ -314,24 +331,8 @@ begin
     rwa ←pi_mem_cl_iff_mem_cl_pullback at hy,
   },
   {
-    -- This is the same as the inclusive proof in the pregeom instance.
-    -- Should be made into a seaprate lemma to avoid repetition
     refine monotone _ hx,
-    refine set.preimage_mono _,
-    intros s hs,
-    rcases quot.exists_rep s with ⟨t,ht⟩,
-    change π _ = _ at ht,
-    refine ⟨t,_,ht⟩,
-    suffices : cls t ≤ π ⁻¹' S,
-    {
-      apply inclusive,
-      apply this,
-      apply mem_cls,
-    },
-    intros u hu,
-    change π u ∈ S,
-    rw ←eq_iff' at hu,
-    rwa [hu,ht],
+    exact set.preimage_mono inclusive_helper,
   }
 end
 
@@ -342,26 +343,14 @@ begin
   {
     change π x ∈ _ at hx,
     cases hx,
-    {
-      left,
-      rwa eq_iff' at hx,
-    },
-    {
-      right,
-      exact hx,
-    }
+    { left, rwa eq_iff' at hx, },
+    { right, exact hx, },
   },
   {
     change π x ∈ _,
     cases hx,
-    {
-      left,
-      rwa eq_iff',
-    },
-    {
-      right,
-      exact hx,
-    }
+    { left, rwa eq_iff', },
+    { right, exact hx, },
   }
 end
 
@@ -377,20 +366,7 @@ instance pregeom_instance : pregeom (geom T) :=
 begin
   split; intros,
   {
-    intros s hs,
-    rcases quot.exists_rep s with ⟨t,ht⟩,
-    change π _ = _ at ht,
-    refine ⟨t,_,ht⟩,
-    suffices : cls t ≤ π ⁻¹' S, 
-    {
-      apply inclusive,
-      apply this,
-      apply mem_cls,
-    },
-    intros u hu,
-    change π u ∈ S,
-    rw ←eq_iff' at hu,
-    rwa [hu, ht],
+    exact inclusive_helper,
   },
   {
     intros a ha,
@@ -470,7 +446,6 @@ begin
   unfold cls at hz,
   rw pregeom.cl_cl_union_set_eq_cl_union at hz,
   simp only [insert_emptyc_eq, set.singleton_union, set.preimage_empty] at hz,
-  change z ∈ cls w at hz,
   rwa eq_iff',
 end
 
@@ -480,11 +455,7 @@ begin
   {
     intro x,
     ext y, split; intro hy,
-    {
-      change y = x,
-      apply mem_cls_geom,
-      assumption,
-    },
+    { apply mem_cls_geom, assumption, },
     {
       change y = x at hy,
       rw hy,
