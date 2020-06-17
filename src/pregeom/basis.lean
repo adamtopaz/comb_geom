@@ -97,6 +97,8 @@ begin
   }
 end
 
+lemma subtract_spanning {t : T} {S : set T} : is_spanning S → t ∈ cl (S - {t}) → is_spanning (S - {t}) := sorry
+
 theorem basis_iff_minimal_spanning {S : set T} :
   is_basis S ↔ 
   is_spanning S ∧ (∀ S' : set T, S' ≤ S → is_spanning S' → S = S') := sorry 
