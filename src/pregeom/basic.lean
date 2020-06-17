@@ -1,4 +1,8 @@
 import data.set
+import tactic
+import ..tactics
+
+open_locale classical
 
 class has_cl (T : Type*) := (cl : set T → set T)
 
@@ -116,6 +120,7 @@ begin
   }
 end
 
+-- take out the set
 lemma cl_set_union_cl_eq_cl_union [pregeom T] {A B : set T} : cl (A ∪ cl B) = cl (A ∪ B) := 
 calc cl (A ∪ cl B) = cl (A ⊔ cl B) : rfl
 ... = cl (cl B ⊔ A) : by rw sup_comm
@@ -133,5 +138,14 @@ begin
   rw pregeom.cl_cl_union_set_eq_cl_union,
   rw set.empty_union,
 end
+
+lemma cl_union_eq [pregeom T] {A S : set T}: A ≤ cl S → cl (A ∪ S) = cl S :=
+begin
+  intro hA,
+  rw ← cl_set_union_cl_eq_cl_union,
+  suffices : A ∪ cl S = cl S, by rw [this, idempotent],
+  tiny_hammer,
+end
+
 
 end pregeom

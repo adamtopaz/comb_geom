@@ -1,5 +1,6 @@
 import tactic
 import .basic
+import ..subtype.helpers
 
 open_locale classical
 
@@ -13,6 +14,17 @@ open has_cl
 def is_indep (S : set T) := ∀ {x : T}, x ∈ S → x ∉ cl (S - {x})
 def is_spanning (S : set T) := ∀ t : T, t ∈ cl S
 def is_basis (S : set T) := is_indep S ∧ is_spanning S
+
+
+@[simp]
+lemma super_spans {A B : set T} {spans : is_spanning A} (le : A ≤ B): is_spanning B :=
+begin
+  unfold is_spanning at *,
+  have mono: cl A ≤ cl B, by exact pregeom.monotone le,
+  intro t,
+  replace spans := spans t,
+  exact mono spans,
+end
 
 lemma insert_indep {t : T} {S : set T} : is_indep S → t ∉ cl S → is_indep (insert t S) := 
 begin
@@ -97,11 +109,80 @@ begin
   }
 end
 
-lemma subtract_spanning {t : T} {S : set T} : is_spanning S → t ∈ cl (S - {t}) → is_spanning (S - {t}) := sorry
+lemma subtract_spanning {t : T} {S : set T} : is_spanning S → t ∈ cl (S - {t}) → is_spanning (S - {t}) :=
+begin
+  intros spanning ht,
+  unfold is_spanning,
+  intro u,
+  have sets : {t} ⊆ cl (S - {t}), by simpa,
+  have pull_in := cl_union_eq sets,
+  rw ← pull_in,
+  simp,
+  have hu : u ∈ cl S, by exact spanning u,
+  have le : S ≤ insert t S, by
+  {
+    intros s hs,
+    exact set.mem_insert_of_mem t hs,
+  },
+  apply pregeom.monotone le,
+  assumption,
+end
 
 theorem basis_iff_minimal_spanning {S : set T} :
   is_basis S ↔ 
-  is_spanning S ∧ (∀ S' : set T, S' ≤ S → is_spanning S' → S = S') := sorry 
+  is_spanning S ∧ (∀ S' : set T, S' ≤ S → is_spanning S' → S = S') := 
+begin
+  split,
+  {
+    intro basis,
+    refine ⟨ basis.2, _ ⟩,
+    intros S' le spanning,
+    tidy,
+    by_contradiction contra,
+
+    have remove : S' ≤ S - {x}, by exact smaller le contra,
+    have smaller_spans: is_spanning (S - {x}),
+    {
+      apply super_spans remove,
+      exact spanning,
+    },
+    have x_seperate: x ∉ cl (S - {x}), by
+    {
+      unfold is_indep at basis_left,
+      replace basis_left := basis_left a,
+      exact basis_left,
+    },
+    have x_included: x ∈ cl (S - {x}), by
+    {
+      unfold is_spanning at smaller_spans,
+      replace smaller_spans := smaller_spans x,
+      exact smaller_spans,
+    },
+    contradiction,
+  },
+  {
+    intro h,
+    cases h with spans inf,
+    unfold is_basis,
+    refine ⟨ _, spans⟩,
+    unfold is_indep,
+    intros x hx,
+    intro contra,
+    have lt : S - {x} ≤ S, by
+    {
+      intros t ht,
+      finish,
+    },
+    replace inf := inf (S - {x}) lt,
+    suffices : is_spanning (S - {x}), by 
+    {
+      replace inf := inf this,
+      have problem: ¬ S = S - {x}, by exact missing_elem S hx,
+      contradiction,
+    },
+    exact subtract_spanning spans contra,
+  }
+end
 
 theorem exists_basis : ∃ S : set T, is_basis S := sorry 
 
