@@ -49,7 +49,7 @@ end
 end subtype
 
 @[simp]
-lemma smaller {A B: set T} {x : T} (le : A ≤ B) (hx : x ∉ A): A ≤ B - {x} :=
+lemma smaller {A B: set T} {x : T} (le : A ≤ B) (hx : x ∉ A): A ≤ B \ {x} :=
 begin
   intros a ha,
   simp,
@@ -60,21 +60,22 @@ begin
 end
 
 @[simp]
-lemma remove (A : set T) (x : T) : A - {x} ≤ A :=
+lemma remove (A : set T) (x : T) : A \ {x} ≤ A :=
 begin
   intros a ha,
   finish,  -- doesn't work without the intros
 end
 
 @[simp]
-lemma missing_elem (A : set T) {x : T} (hx : x ∈ A): ¬ (A = A - {x}) :=
+lemma missing_elem (A : set T) {x : T} (hx : x ∈ A): ¬ (A = A \ {x}) :=
 begin
   intro,
   have : ∀ t : T, t ∈ A ↔ t ∈ A - {x}, by
   {
     -- this is silly, this has to be in the docs
     intro t,
-    rw ← a,
+    change _ ↔ _ ∈ A \ {x},
+    rw ←a,
   },
   replace this := (this x).mp hx,
   finish,

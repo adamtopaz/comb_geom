@@ -13,11 +13,23 @@ namespace basis
 
 open has_cl
 
+/-- 
+A set `S` is independent if for all `x ∈ S`, the element `x` is not contained in
+
+`cl (S - {x})`
+-/
 def is_indep (S : set T) := ∀ {x : T}, x ∈ S → x ∉ cl (S - {x})
+
+/--
+A set `S` is spanning if `∀ t : T, t ∈ cl S`.
+-/
 def is_spanning (S : set T) := ∀ t : T, t ∈ cl S
+
+/-- A basis is a spanning independent set. -/
 def is_basis (S : set T) := is_indep S ∧ is_spanning S
 
 
+/-- If `A` spans, and `A ≤ B`, then `B` spans. -/
 @[simp]
 lemma super_spans {A B : set T} {spans : is_spanning A} (le : A ≤ B): is_spanning B :=
 begin
@@ -28,6 +40,7 @@ begin
   exact mono spans,
 end
 
+/-- If `S` is independent and `t ∉ cl S` then `insert t S` is independent. -/
 lemma insert_indep {t : T} {S : set T} : is_indep S → t ∉ cl S → is_indep (insert t S) := 
 begin
   intros h ht,
@@ -58,6 +71,7 @@ begin
   }
 end
 
+/-- A basis is a maximal independent set. -/
 theorem basis_iff_maximal_indep {S : set T} : 
   is_basis S ↔ 
   is_indep S ∧ (∀ S' : set T, S ≤ S' → is_indep S' → S = S') := 
@@ -111,6 +125,7 @@ begin
   }
 end
 
+/-- If `S` spans and `t ∈ cl (S - {t})` then `S - {t}` spans as well. -/
 lemma subtract_spanning {t : T} {S : set T} : is_spanning S → t ∈ cl (S - {t}) → is_spanning (S - {t}) :=
 begin
   intros spanning ht,
@@ -130,6 +145,7 @@ begin
   assumption,
 end
 
+/-- A basis is a minimal spanning set. -/
 theorem basis_iff_minimal_spanning {S : set T} :
   is_basis S ↔ 
   is_spanning S ∧ (∀ S' : set T, S' ≤ S → is_spanning S' → S = S') := 
@@ -186,12 +202,14 @@ begin
   }
 end
 
+-- Ignore these definitions: they are only here to help in some of the proofs. 
 variable (T)
 private def indep_sets := { S : set T // is_indep S }
 variable {T}
 private def indep_sets_rel : indep_sets T → indep_sets T → Prop := λ A B, A.1 ≤ B.1
 private def indep_sets_union (S : set (indep_sets T)) : set T := Sup (subtype.val '' S)
 
+-- This proof takes a while to check! Can it be simplified? 
 private lemma union_chain_indep {S : set (indep_sets T)} :
   zorn.chain indep_sets_rel S → is_indep (indep_sets_union S) :=
 begin
@@ -255,6 +273,7 @@ begin
   }
 end
 
+/-- Any pregeometry has a basis. -/
 theorem exists_basis : ∃ S : set T, is_basis S :=  
 begin
   have zorn := @zorn.exists_maximal_of_chains_bounded 

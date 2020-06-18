@@ -2,10 +2,34 @@ import data.set
 import tactic
 import ..tactics
 
+/-!
+# Pregeometries
+
+This file defines the typeclass `pregeom` of pregeometries.
+These are types endowed with a "closure operator" `cl` acting on subsets, satisfying various axioms.
+A pregeometry is a geometry provided that the closure of ∅ is ∅ and that the closure of a singleton is itself.
+
+# Implementation Details
+
+Typeclasses:
+1. `has_cl` -- a typeclass for the cl operator
+2. `pregeom` -- see above
+3. `geom` -- see above
+
+# Remarks
+
+See the `geometrize.lean` file for the construction of a geometry from a pregeometry.
+
+-/
+
+set_option default_priority 100 
+
 open_locale classical
 
+/-- Typeclass for the `cl` operator -/
 class has_cl (T : Type*) := (cl : set T → set T)
 
+/-- Typeclass of `pregeometries` -/
 class pregeom (T : Type*) extends has_cl T :=
 (inclusive {S} : S ≤ cl S)
 (monotone {A B} : A ≤ B → cl A ≤ cl B)
@@ -13,16 +37,21 @@ class pregeom (T : Type*) extends has_cl T :=
 (exchange {x y S} : x ∈ cl (insert y S) → x ∉ cl S → y ∈ cl (insert x S))
 (finchar {x S} : x ∈ cl S → ∃ A : finset T, ↑A ≤ S ∧ x ∈ cl ↑A)
 
+/-- Typeclass for geometries -/
 class geometry (T : Type*) extends pregeom T :=
 (cl_singleton {x} : cl {x} = {x})
 (cl_empty : cl ∅ = ∅)
 
+notation `cl` := has_cl.cl
+
 namespace pregeom
-open has_cl
 
 variables {T : Type*} 
 
+/-- A set S is closed if there exists some other set A such that `cl A = S` -/
 def is_closed [has_cl T] (S : set T) := ∃ A, cl A = S 
+
+/-- `cls x` is the closure of the singleton `{x}` -/
 def cls [has_cl T] (x : T) := cl ({x} : set T)
 
 lemma mem_cls [pregeom T] {x : T} : x ∈ cls x := inclusive (set.mem_singleton x)
@@ -46,17 +75,17 @@ begin
 end
 
 @[simp]
-lemma Sup_le_eq_cl [pregeom T] {S : set T} : Sup { A | ∃ x, A = cls x ∧ A ≤ cl S } = cl S :=
+lemma Sup_le_eq_cl [pregeom T] {S : set T} : Sup { A | (∃ x, A = cls x) ∧ A ≤ cl S } = cl S :=
 begin
   ext, split,
   {
     intro hx,
-    rcases hx with ⟨A, ⟨t,rfl,h⟩, hA⟩,
+    rcases hx with ⟨A,⟨⟨t,rfl⟩,h⟩,hA⟩,
     exact h hA,
   },
   {
     intro hx,
-    refine ⟨cls x, ⟨x,rfl, _⟩,_⟩,
+    refine ⟨cls x,⟨⟨x,rfl⟩,_⟩,_⟩,
     { rw cls_le_iff_mem_cl, exact hx },
     { exact mem_cls },
   }
@@ -120,8 +149,7 @@ begin
   }
 end
 
--- take out the set
-lemma cl_set_union_cl_eq_cl_union [pregeom T] {A B : set T} : cl (A ∪ cl B) = cl (A ∪ B) := 
+lemma cl_union_cl_eq_cl_union [pregeom T] {A B : set T} : cl (A ∪ cl B) = cl (A ∪ B) := 
 calc cl (A ∪ cl B) = cl (A ⊔ cl B) : rfl
 ... = cl (cl B ⊔ A) : by rw sup_comm
 ... = cl (B ∪ A) : cl_cl_union_set_eq_cl_union
@@ -129,7 +157,7 @@ calc cl (A ∪ cl B) = cl (A ⊔ cl B) : rfl
 ... = cl (A ⊔ B) : by rw sup_comm
 
 lemma cl_cl_union_cl_eq_cl_union [pregeom T] {A B : set T} : cl (cl A ∪ cl B) = cl (A ∪ B) := 
-calc cl (cl A ∪ cl B) = cl (cl A ∪ B) : cl_set_union_cl_eq_cl_union
+calc cl (cl A ∪ cl B) = cl (cl A ∪ B) : cl_union_cl_eq_cl_union
 ... = cl (A ∪ B) : cl_cl_union_set_eq_cl_union
 
 @[simp]
@@ -142,10 +170,9 @@ end
 lemma cl_union_eq [pregeom T] {A S : set T}: A ≤ cl S → cl (A ∪ S) = cl S :=
 begin
   intro hA,
-  rw ← cl_set_union_cl_eq_cl_union,
+  rw ←cl_union_cl_eq_cl_union,
   suffices : A ∪ cl S = cl S, by rw [this, idempotent],
   tiny_hammer,
 end
-
 
 end pregeom
