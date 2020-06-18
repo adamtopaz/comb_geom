@@ -362,7 +362,7 @@ lemma cl_pullback_insert {t : reg T} {S : set (geom T)} : cl (π ⁻¹' insert (
 begin
   rw pullback_insert,
   unfold cls,
-  rw cl_cl_union_set_eq_cl_union,
+  rw cl_cl_union_eq_cl_union,
   rw set.singleton_union,
 end
 
@@ -448,7 +448,7 @@ begin
   rw pullback_insert at hz,
   change π z = π _,
   unfold cls at hz,
-  rw pregeom.cl_cl_union_set_eq_cl_union at hz,
+  rw pregeom.cl_cl_union_eq_cl_union at hz,
   simp only [insert_emptyc_eq, set.singleton_union, set.preimage_empty] at hz,
   rwa eq_iff',
 end

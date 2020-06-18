@@ -117,7 +117,7 @@ begin
   }
 end
 
-lemma cl_cl_union_set_eq_cl_union [pregeom T] {A B : set T} : cl (cl A ∪ B) = cl (A ∪ B) := 
+lemma cl_cl_union_eq_cl_union [pregeom T] {A B : set T} : cl (cl A ∪ B) = cl (A ∪ B) := 
 begin
   ext, split; intro h,
   {
@@ -152,18 +152,18 @@ end
 lemma cl_union_cl_eq_cl_union [pregeom T] {A B : set T} : cl (A ∪ cl B) = cl (A ∪ B) := 
 calc cl (A ∪ cl B) = cl (A ⊔ cl B) : rfl
 ... = cl (cl B ⊔ A) : by rw sup_comm
-... = cl (B ∪ A) : cl_cl_union_set_eq_cl_union
+... = cl (B ∪ A) : cl_cl_union_eq_cl_union
 ... = cl (B ⊔ A) : rfl
 ... = cl (A ⊔ B) : by rw sup_comm
 
 lemma cl_cl_union_cl_eq_cl_union [pregeom T] {A B : set T} : cl (cl A ∪ cl B) = cl (A ∪ B) := 
 calc cl (cl A ∪ cl B) = cl (cl A ∪ B) : cl_union_cl_eq_cl_union
-... = cl (A ∪ B) : cl_cl_union_set_eq_cl_union
+... = cl (A ∪ B) : cl_cl_union_eq_cl_union
 
 @[simp]
 lemma cl_union_cl_empty [pregeom T] {A : set T} : cl (cl (∅ : set T) ∪ A) = cl A := 
 begin
-  rw pregeom.cl_cl_union_set_eq_cl_union,
+  rw pregeom.cl_cl_union_eq_cl_union,
   rw set.empty_union,
 end
 
