@@ -3,36 +3,23 @@ import ..subtype.helpers
 import data.finset
 
 /-!
-# What is going on here?!
+# Geometrization of a pregeometry
 
-Start with a pregeometry T.
-Define 
+In this file we construct a geometry from a pregeometry in the "standard way".
 
-reg T
-
-to be the subtype of regular elements, where an element t ∈ T is regular
-provided that t ∉ cl ∅
-
-ι : (reg T) ↪ T
-
-is the canonical inclusion.
-
-Then we define an equiv. relation on reg T, by saying that x and y are equivalent
-provided that x ∈ cl {y} (this is equivalent to cl {x} = cl {y}).
-
-Define (geom T) to be the quotient of (reg T) relative to this relation.
-
-And
-
-π : (reg T) ↠ (geom T) 
-
-is the canonical projection.
-
-When referring to ι, we should use words like "image" and "preimage".
-
-When referring to π, we should use words like "pushforward" and "pullback".
+We do this in four steps, as follows.
+Given a pregeometry `T`, we define:
+1. The subtype of "regular elements" of `T`, denoted `reg T`. 
+  A "regular" element is an element which is not contained in the closure of `∅`. 
+2. We construct a pregeometry instance on `reg T`. 
+3. We construct the quotient of `reg T` by the equivalence relation `rel` defined as
+  `rel x y ↔ cls x = cls y`. 
+  This quotient type is denoted `geom T`.
+4. We construct a geometry structure on `geom T`.
 
 -/
+
+set_option default_priority 100 
 
 open_locale classical
 
@@ -41,22 +28,34 @@ open has_cl
 
 variables (T : Type*) 
 
+/-- The set of "regular elements" (see above). -/
 def reg_set [has_cl T] := { t | t ∉ cl (∅ : set T) }
+
+/-- The subtype of regular elements (see above). -/
 def reg [has_cl T] := subtype (reg_set T)
 
 namespace reg
+
+/-- A typeclass for regular elements of T. Mainly used to inhabited instance. -/
+-- This is only here so that the linted is happy. Is this actually necessary?
+class has_reg_element extends has_cl T :=
+(elem : T)
+(is_regular : elem ∉ cl (∅ : set T))
+
+open has_reg_element
+instance [has_reg_element T] : inhabited (reg T) := ⟨⟨elem,is_regular⟩⟩
 
 local notation `ι` := subtype.val
 
 instance has_cl_instance [has_cl T] : has_cl (reg T) :=
 ⟨ λ S, ι ⁻¹' cl (ι '' S) ⟩
 
+/-- The relation used to define a geometry from a pregeomery. -/
 protected def rel [has_cl T] : reg T → reg T → Prop :=
 λ s t, cls s = cls t 
 
 variable {T}
 
--- Having equivalent closures is an equivalence relation on the regular elements.
 protected theorem is_equiv [has_cl T] : equivalence (reg.rel T) := 
 begin
   refine ⟨_,_,_⟩,
@@ -145,7 +144,7 @@ begin
     apply set.monotone_image a,
   },
   {
-    unfold cl,    
+    unfold has_cl.cl,    
     rw [subtype.image_preimage, cl_reg_set_inter, idempotent],
   },
   {
@@ -182,7 +181,7 @@ end
 @[simp]
 theorem regularity [pregeom T] : cl (∅ : set (reg T)) = ∅ := 
 begin
-  unfold cl,
+  unfold has_cl.cl,
   rw set.image_empty,
   ext, split; intro hx,
   {
@@ -197,19 +196,24 @@ end
 
 end reg
 
+/-- The setoid used to construct `geom T` from `reg T`. -/
 protected def setoid [has_cl T] : setoid (reg T) := ⟨reg.rel T, reg.is_equiv⟩
 
+/-- The geometry associated to `T`. See above. -/
 def geom [has_cl T] := quotient (pregeom.setoid T)
-
 
 namespace geom
 
 variable {T}
 
+/-- The canonical projection from `reg T` to `geom T`. -/
 def to_geom [has_cl T] : reg T → geom T := quotient.mk'
 
 local notation `π` := to_geom
 
+instance [has_cl T] [inhabited (reg T)] : inhabited (geom T) := ⟨ π (default (reg T)) ⟩
+
+/-- A variant of `to_geom`, but which takes a term of type `T` and a proof of "regularity" as inputs. -/
 def to_geom_of_reg [has_cl T] {t : T} (h : t ∈ reg_set T) : geom T := π ⟨t,h⟩
 
 theorem eq_iff [has_cl T] {u v : reg T} : π u = π v ↔ cls u = cls v := by simpa [to_geom]
@@ -358,7 +362,7 @@ lemma cl_pullback_insert {t : reg T} {S : set (geom T)} : cl (π ⁻¹' insert (
 begin
   rw pullback_insert,
   unfold cls,
-  rw cl_cl_union_set_eq_cl_union,
+  rw cl_cl_union_eq_cl_union,
   rw set.singleton_union,
 end
 
@@ -434,7 +438,7 @@ begin
   },
 end
 
-lemma mem_cls_geom [pregeom T] {x y : geom T} : x ∈ cls y → x = y := 
+lemma mem_cls_geom {x y : geom T} : x ∈ cls y → x = y := 
 begin
   intro hx,
   rcases hx with ⟨z,hz,rfl⟩,
@@ -444,7 +448,7 @@ begin
   rw pullback_insert at hz,
   change π z = π _,
   unfold cls at hz,
-  rw pregeom.cl_cl_union_set_eq_cl_union at hz,
+  rw pregeom.cl_cl_union_eq_cl_union at hz,
   simp only [insert_emptyc_eq, set.singleton_union, set.preimage_empty] at hz,
   rwa eq_iff',
 end
