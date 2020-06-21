@@ -1,4 +1,5 @@
 import .basic
+import .pullback
 import ..subtype.helpers
 import data.finset
 
@@ -47,8 +48,7 @@ instance [has_reg_element T] : inhabited (reg T) := ⟨⟨elem,is_regular⟩⟩
 
 local notation `ι` := subtype.val
 
-instance has_cl_instance [has_cl T] : has_cl (reg T) :=
-⟨ λ S, ι ⁻¹' cl (ι '' S) ⟩
+instance has_cl_instance [has_cl T] : has_cl (reg T) := pregeom.pullback.has_cl_instance subtype.val 
 
 /-- The relation used to define a geometry from a pregeomery. -/
 protected def rel [has_cl T] : reg T → reg T → Prop :=
@@ -129,59 +129,12 @@ begin
   }
 end
 
-instance pregeom_instance [pregeom T] : pregeom (reg T) :=
-begin
-  split; intros,
-  {
-    intros s hs,
-    change s.val ∈ _,
-    apply inclusive,
-    exact set.mem_image_of_mem ι hs,
-  },
-  {
-    intros u hu,
-    suffices : ι '' A ≤ ι '' B, by exact monotone this hu,
-    apply set.monotone_image a,
-  },
-  {
-    unfold has_cl.cl,    
-    rw [subtype.image_preimage, cl_reg_set_inter, idempotent],
-  },
-  {
-    change y.val ∈ _,
-    change x.val ∈ _ at a,
-    change x.val ∉ _ at a_1,
-    rw set.image_insert_eq at *,
-    exact exchange a a_1,
-  },
-  {
-    change x.val ∈ _ at a,
-    rcases finchar a with ⟨W,h1,h2⟩,
-    have : ↑W ≤ reg_set T,
-    {
-      refine le_trans h1 _,
-      exact subtype.image_le S,
-    },
-    rcases reg_lift_finset this with ⟨V,rfl⟩,
-    refine ⟨V,_,_⟩,
-    {
-      intros v hv,
-      rw ←subtype.preimage_image S,
-      apply h1,
-      rw finset.coe_image,
-      exact set.mem_image_of_mem ι hv,
-    },
-    {
-      rw finset.coe_image at h2,
-      exact h2,
-    }
-  },
-end
+instance pregeom_instance [pregeom T] : pregeom (reg T) := pregeom.pullback.pregeom_instance subtype.val
 
 @[simp]
-theorem regularity [pregeom T] : cl (∅ : set (reg T)) = ∅ := 
+theorem regularity [has_cl T] : cl (∅ : set (reg T)) = ∅ := 
 begin
-  unfold has_cl.cl,
+  change subtype.val ⁻¹' _ = _,
   rw set.image_empty,
   ext, split; intro hx,
   {

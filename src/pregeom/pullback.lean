@@ -6,12 +6,12 @@ open_locale classical
 namespace pregeom
 namespace pullback
 
-variables {T : Type*} [pregeom T] {S : Type*} (f : S → T)
+variables {T : Type*} {S : Type*} (f : S → T)
 
 include f
-def has_cl_instance : has_cl S := ⟨λ A, f ⁻¹' (cl (f '' A))⟩
+def has_cl_instance [has_cl T] : has_cl S := ⟨λ A, f ⁻¹' (cl (f '' A))⟩
 
-def pregeom_instance : pregeom S :=
+def pregeom_instance [pregeom T] : pregeom S :=
 { 
   inclusive := λ A a ha, 
   begin
