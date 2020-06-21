@@ -79,4 +79,32 @@ def pregeom_instance [pregeom T] : pregeom S :=
 }
 
 end pullback
+
+namespace geom
+namespace pullback
+
+variables {T : Type*} {S : Type*} (f : S → T)
+
+include f
+open function 
+
+def geom_instance [geometry T] : injective f → geometry S := λ inj,
+{
+  cl_singleton := λ x, 
+  begin
+    change f ⁻¹' _ = _,
+    rw [set.image_singleton, geometry.cl_singleton],
+    rw [←set.image_singleton, set.preimage_image_eq],
+    assumption,
+  end,
+  cl_empty := 
+  begin
+    change f ⁻¹' _ = _,
+    rw [set.image_empty, geometry.cl_empty, set.preimage_empty],
+  end,
+  ..show pregeom S, by exact pullback.pregeom_instance f
+}
+
+end pullback
+end geom
 end pregeom
