@@ -9,8 +9,10 @@ namespace pullback
 variables {T : Type*} {S : Type*} (f : S → T)
 
 include f
+/-- The has_cl instance for the pullback by f. -/
 def has_cl_instance [has_cl T] : has_cl S := ⟨λ A, f ⁻¹' (cl (f '' A))⟩
 
+/-- The pregeom instance for the pullback by f. -/
 def pregeom_instance [pregeom T] : pregeom S :=
 { 
   inclusive := λ A a ha, 
@@ -88,6 +90,7 @@ variables {T : Type*} {S : Type*} (f : S → T)
 include f
 open function 
 
+/-- If f is injective, and T is a geometry, then the pullback by f : S → T is a geometry. -/
 def geom_instance [geometry T] : injective f → geometry S := λ inj,
 {
   cl_singleton := λ x, 
