@@ -302,6 +302,7 @@ begin
       dsimp,
       cases a with a ha,
       dsimp at *,
+      change a ≤ _,
       refine le_Sup _,
       tidy,
     }
