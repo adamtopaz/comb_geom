@@ -73,22 +73,18 @@ theorem spanning_iff_range_spanning : is_spanning ι ↔ basis.is_spanning (rang
 theorem indep_iff_injective_range_indep : is_indep ι ↔ injective ι ∧ basis.is_indep (range ι) := 
 begin
   split,
-  {
-    intro h,
+  { intro h,
     have c1 := injective_of_indep h,
     refine ⟨c1,_⟩,
     rintros _ ⟨y,rfl⟩,
     replace h := h y,
     change _ ∉ cl (range ι \ _),
-    rwa ←range_res_eq_sub_range_of_injective c1,
-  },
-  {
-    rintros ⟨h1,h2⟩,
+    rwa ←range_res_eq_sub_range_of_injective c1, },
+  { rintros ⟨h1,h2⟩,
     intro s,
     rw range_res_eq_sub_range_of_injective h1,
     apply h2,
-    use s,
-  }
+    use s, }
 end
 
 /-- ι is a basis if and only if ι is injective and its image is a basis.
@@ -97,17 +93,13 @@ This can be used to go back and forth between the definition of bases for sets a
 theorem basis_iff_injective_range_basis : is_basis ι ↔ injective ι ∧ basis.is_basis (range ι) :=
 begin
   split,
-  {
-    rintro ⟨h1,h2⟩,
+  { rintro ⟨h1,h2⟩,
     rw indep_iff_injective_range_indep at h1,
-    exact ⟨h1.1,⟨h1.2,h2⟩⟩,
-  },
-  {
-    rintro ⟨h1,h2,h3⟩,
+    exact ⟨h1.1,⟨h1.2,h2⟩⟩, },
+  { rintro ⟨h1,h2,h3⟩,
     refine ⟨_,h3⟩,
     rw indep_iff_injective_range_indep,
-    finish,
-  }
+    finish, }
 end
 
 end basis_family
