@@ -45,17 +45,14 @@ begin
   { exact subset_span },
   { exact span_mono a },
   { unfold has_cl.cl, rwa span_span, },
-  {
-    replace a : x ∈ span k (insert y S), by exact a,
+  { replace a : x ∈ span k (insert y S), by exact a,
     rw mem_span_insert at a,
     rcases a with ⟨a,v,w,h⟩,
     have : a ≠ 0, 
-    {
-      intro contra, rw contra at h,
+    { intro contra, rw contra at h,
       replace h : x = v, by rwa [zero_smul,zero_add] at h,
       rw h at *,
-      contradiction,
-    },
+      contradiction, },
     have : a⁻¹ • x + a⁻¹ • -v = y, by
     calc a⁻¹ • x + a⁻¹ • -v = a⁻¹ • a • y + a⁻¹ • v + a⁻¹ • -v : by rw [h, smul_add]
     ... = (1 : k) • y + a⁻¹ • v + a⁻¹ • -v : by rw [←mul_smul, inv_mul_cancel this]
@@ -66,24 +63,17 @@ begin
     { apply smul_mem' H, apply subset_span, simp, },
     { apply smul_mem' H, apply neg_mem H, 
       have : S ⊆ insert x S, by simp, 
-      apply span_mono this, assumption, },
-  },
-  {
-    unfold has_cl.cl at *,
+      apply span_mono this, assumption, } },
+  { unfold has_cl.cl at *,
     rw ←lcspan.lcspan_eq_span at a,
     rcases a with ⟨L,hL1,hL2⟩,
     refine ⟨(lincomb.vects L).to_finset, _ , _⟩,
-    {
-      intros x hx,
+    { intros x hx,
       replace hx : x ∈ (lincomb.vects L).to_finset, by exact hx,
       rw list.mem_to_finset at hx,
-      exact hL2 hx,
-    },
-    {
-      rw ←hL1,
-      apply lincomb.mem_span,
-    }
-  }
+      exact hL2 hx, },
+    { rw ←hL1,
+      apply lincomb.mem_span, } }
 end
 local attribute [instance] pregeom_instance
 

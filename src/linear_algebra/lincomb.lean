@@ -67,19 +67,17 @@ lemma eval_add {L1 L2 : lincomb R M} : eval (L1 ++ L2) = eval L1 + eval L2 :=
 begin
   induction L1 with l ls hls,
   { simp },
-  {
-    have : l :: ls ++ L2 = l :: (ls ++ L2), by refl,
+  { have : l :: ls ++ L2 = l :: (ls ++ L2), by refl,
     rw [this, eval_cons],
-    finish,
-  }
+    finish, }
 end
 
 @[simp]
 lemma eval_lmul {c : R} {L : lincomb R M} : eval (lmul c L) = c • (eval L) :=
 begin
   induction L with l ls hls,
-  {simpa only [eval_nil, smul_zero]},
-  {rwa [lmul_cons,eval_cons,hls,eval_cons,mul_smul,smul_add]}
+  { simpa only [eval_nil, smul_zero] },
+  { rwa [lmul_cons,eval_cons,hls,eval_cons,mul_smul,smul_add] }
 end
 
 open submodule
@@ -88,28 +86,20 @@ open_locale classical
 theorem mem_span {L : lincomb R M} : eval L ∈ (span R (↑(list.to_finset (vects L)) : set M)) :=
 begin
   induction L with l ls hls,
-  {
-    simp,
-  },
-  {
-    cases l with c v,
+  { simp, },
+  { cases l with c v,
     set vs := vects ls,
     have : (vects ((c,v) :: ls)).to_finset = insert v vs.to_finset, by simp,
     rw [this, eval_cons],
     set H := span R (↑(insert v vs.to_finset) : set M),
     apply add_mem' H,
-    {
-      simp only [],
+    { simp only [],
       apply smul_mem' H,
       apply subset_span,
-      simp,
-    },
-    {
-      suffices : eval ls ∈ span R (↑(vs.to_finset) : set M),
+      simp, },
+    { suffices : eval ls ∈ span R (↑(vs.to_finset) : set M),
         by refine span_mono _ this; simp,
-      assumption,
-    }
-  }
+      assumption, }}
 end
 
 end lincomb
@@ -128,35 +118,26 @@ begin
   refine_struct {
     carrier := { m | ∃ L : list (R × M), (eval L) = m ∧ (∀ {l}, l ∈ vects L → l ∈ S)}
   },
-  {
-    refine ⟨[],_,_⟩,
+  { refine ⟨[],_,_⟩,
     { refl },
-    { intros _ hl, exfalso, exact hl }
-  },
-  {
-    rintros m n ⟨A,hA1,hA2⟩ ⟨B, hB1, hB2⟩,
+    { intros _ hl, exfalso, exact hl }},
+  { rintros m n ⟨A,hA1,hA2⟩ ⟨B, hB1, hB2⟩,
     use A ++ B,
     split,
     { rwa [eval_add, hA1,hB1] },
     { intros l hl,
       unfold vects at hl,
       rw [list.map_append prod.snd, list.mem_append] at hl,
-      cases hl, {apply hA2, assumption}, {apply hB2, assumption}
-    }
-  },
-  {
-    rintros c m ⟨L,hL1,hL2⟩,
+      cases hl, {apply hA2, assumption}, {apply hB2, assumption}}},
+  { rintros c m ⟨L,hL1,hL2⟩,
     refine ⟨lmul c L,_,_⟩,
     { rwa [eval_lmul,hL1] },
-    { rwa vects_lmul },
-  }
+    { rwa vects_lmul }, }
 end
 
 namespace lcspan
 
 open submodule
-
-#check lcspan
 
 /--
 lcspan S agrees with span (which is defined as the infemum over all submodules containing S)
@@ -165,8 +146,7 @@ theorem lcspan_eq_span {S : set M} : lcspan R S = span R S :=
 begin
   ext m,
   split,
-  {
-    intro hm,
+  { intro hm,
     rcases hm with ⟨L,rfl,hL2⟩,
     induction L with l ls hls,
     { apply zero_mem' (span R S) },
@@ -175,27 +155,19 @@ begin
       { apply smul_mem' (span R S), apply subset_span, apply hL2,
         rw vects_cons, simp, },
       { apply hls, intros u hu, apply hL2, rw vects_cons,
-        exact list.mem_cons_of_mem l.snd hu, }
-    },
-  },
-  {
-    intro hm,
+        exact list.mem_cons_of_mem l.snd hu, }}},
+  { intro hm,
     have claim : lcspan R S ∈ { U : submodule R M | S ⊆ ↑U },
-    {
-      intros s hs,
+    { intros s hs,
       refine ⟨[(1,s)],_,_⟩,
       { simp, },
       { intros l hl,
         simp only [list.mem_cons_iff, vects_cons] at hl,
         rcases hl with ⟨ rfl,hl⟩,
         { assumption },
-        { exfalso, exact hl, },
-      },
-    },
-    {
-      apply Inf_le claim,
-      assumption,
-    }
+        { exfalso, exact hl, }}},
+    { apply Inf_le claim,
+      assumption, }
   }
 end
 

@@ -1,6 +1,5 @@
 import .basic
 import .pullback
-import ..subtype.helpers
 import data.finset
 
 /-!
@@ -59,21 +58,15 @@ variable {T}
 protected theorem is_equiv [has_cl T] : equivalence (reg.rel T) := 
 begin
   refine ⟨_,_,_⟩,
-  {
-    unfold reflexive reg.rel,
+  { unfold reflexive reg.rel,
     intro x,
-    refl,
-  },
-  {
-    unfold symmetric reg.rel,
+    refl, },
+  { unfold symmetric reg.rel,
     rintros x y hx,
-    rwa hx,
-  },
-  {
-    unfold transitive reg.rel,
+    rwa hx, },
+  { unfold transitive reg.rel,
     intros x y z h1 h2,
-    rwa [h1, h2],
-  }
+    rwa [h1, h2], }
 end
 
 @[simp]
@@ -81,23 +74,16 @@ lemma cl_reg_set_inter [pregeom T] {S : set T} : cl (reg_set T ∩ S) = cl S :=
 begin
   ext,
   split,
-  {
-    intro h,
+  { intro h,
     have : reg_set T ∩ S ≤ S, by {intros x hx, cases hx, assumption},
-    exact monotone this h,
-  },
-  {
-    intro h,
+    exact monotone this h, },
+  { intro h,
     have : S ≤ cl (∅ : set T) ∪ (reg_set T ∩ S), 
-    {
-      intros s hs,
+    { intros s hs,
       by_cases s ∈ cl (∅ : set T),
       { left, assumption },
-      {
-        right,
-        exact ⟨h,hs⟩,
-      }
-    },
+      { right,
+        exact ⟨h,hs⟩, } },
     replace h := monotone this h,
     rw cl_union_cl_empty at h,
     exact h,
@@ -107,26 +93,18 @@ end
 private lemma reg_lift_finset [has_cl T] {W : finset T} : ↑W ⊆ reg_set T → ∃ V : finset (reg T), finset.image ι V = W := 
 begin
   refine finset.induction_on W _ _; intros,
-  {
-    use ∅,
-    trivial,
-  },
-  {
-    have : ↑s ⊆ reg_set T,
-    {
-      intros x hx,
+  { use ∅,
+    trivial, },
+  { have : ↑s ⊆ reg_set T,
+    { intros x hx,
       apply a_3,
-      simp [hx],
-    },
+      simp [hx], },
     rcases a_2 this with ⟨V,rfl⟩,
     have : a ∈ reg_set T,
-    {
-      apply a_3,
-      simp,
-    },
+    { apply a_3,
+      simp, },
     use insert ⟨a,this⟩ V,
-    rwa finset.image_insert,
-  }
+    rwa finset.image_insert, }
 end
 
 instance pregeom_instance [pregeom T] : pregeom (reg T) := pregeom.pullback.pregeom_instance subtype.val
@@ -137,14 +115,10 @@ begin
   change subtype.val ⁻¹' _ = _,
   rw set.image_empty,
   ext, split; intro hx,
-  {
-    change x.val ∈ _ at hx,
+  { change x.val ∈ _ at hx,
     have := x.2,
-    contradiction,
-  },
-  {
-    finish,
-  }
+    contradiction, },
+  { finish, }
 end
 
 end reg
@@ -175,47 +149,31 @@ theorem eq_iff' [pregeom T] {u v : reg T} : π u = π v ↔ u ∈ cls v :=
 begin
   rw eq_iff,
   split,
-  {
-    intro h, rw ←h, exact mem_cls,
-  },
-  {
-    intro h1, ext, split,
-    {
-      intro h2,
+  { intro h, rw ←h, exact mem_cls, },
+  { intro h1, ext, split,
+    { intro h2,
       unfold cls at h1,
       rw ←cls_le_iff_mem_cl at h1,
-      exact h1 h2,
-    },
-    {
-      intro h2,
+      exact h1 h2, },
+    { intro h2,
       replace h1 := exchange_cls h1 _,
-      {
-        unfold cls at h1,
+      { unfold cls at h1,
         rw ←cls_le_iff_mem_cl at h1,
-        exact h1 h2,
-      },
-      {
-        rw reg.regularity,
-        tauto,
-      }
-    }
-  }
+        exact h1 h2, },
+      { rw reg.regularity,
+        tauto, } } }
 end
 
 theorem cls_le_pullback_of_mem [pregeom T] {t : reg T} {S : set (geom T) }: π t ∈ S ↔ cls t ≤ π ⁻¹' S :=
 begin
   split; intro h,
-  {
-    intros u hu,
+  { intros u hu,
     change _ ∈ cls _ at hu,
     rw ←eq_iff' at hu,
-    rwa ←hu at h,
-  },
-  {
-    suffices : t ∈ π ⁻¹' S, by exact this,
+    rwa ←hu at h, },
+  { suffices : t ∈ π ⁻¹' S, by exact this,
     apply h,
-    exact mem_cls,
-  }
+    exact mem_cls, }
 end
 
 lemma mem_cl_of_mem_mk_eq_mk [pregeom T] {x y : reg T} {S : set (reg T)} : x ∈ cl S → π x = π y → y ∈ cl S := 
@@ -233,10 +191,8 @@ begin
   intros ha h,
   rw eq_iff' at h,
   replace ha : ({a} : set (reg T)) ≤ S, 
-  {
-    rintros b ⟨rfl⟩,
-    assumption,
-  },
+  { rintros b ⟨rfl⟩,
+    assumption, },
   apply monotone ha,
   assumption,
 end
@@ -250,13 +206,9 @@ lemma pi_mem_cl_iff_mem_cl_pullback {t : reg T} {S : set (geom T)} :
   t ∈ cl (π ⁻¹' S) ↔ π t ∈ cl S :=
 begin
   split; intro h,
-  {
-    exact ⟨t,h,rfl⟩,
-  },
-  {
-    rcases h with ⟨u,h,hu⟩,
-    exact mem_cl_of_mem_mk_eq_mk h hu,
-  }
+  { exact ⟨t,h,rfl⟩, },
+  { rcases h with ⟨u,h,hu⟩,
+    exact mem_cl_of_mem_mk_eq_mk h hu, }
 end
 
 private lemma inclusive_helper {S : set (geom T)} : S ≤ cl S :=
@@ -266,11 +218,9 @@ begin
   change π _ = _ at ht,
   refine ⟨t,_,ht⟩,
   suffices : cls t ≤ π ⁻¹' S,
-  {
-    apply inclusive,
+  { apply inclusive,
     apply this,
-    apply mem_cls,
-  },
+    apply mem_cls, },
   intros u hu,
   change π u ∈ S,
   rw ←eq_iff' at hu,
@@ -280,35 +230,27 @@ end
 lemma cl_pullback_cl_eq_cl_pullback {S : set (geom T)} : cl (π ⁻¹' cl S) = cl (π ⁻¹' S) := 
 begin
   ext, split; intro hx,
-  {
-    rw ←idempotent,
+  { rw ←idempotent,
     refine monotone _ hx,
     intros y hy,
     change π y ∈ _ at hy,
-    rwa ←pi_mem_cl_iff_mem_cl_pullback at hy,
-  },
-  {
-    refine monotone _ hx,
-    exact set.preimage_mono inclusive_helper,
-  }
+    rwa ←pi_mem_cl_iff_mem_cl_pullback at hy, },
+  { refine monotone _ hx,
+    exact set.preimage_mono inclusive_helper, }
 end
 
 @[simp]
 lemma pullback_insert {t : reg T} {S : set (geom T)} : π ⁻¹' insert (π t) S = cls t ∪ π ⁻¹' S := 
 begin
   ext, split; intro hx,
-  {
-    change π x ∈ _ at hx,
+  { change π x ∈ _ at hx,
     cases hx,
     { left, rwa eq_iff' at hx, },
-    { right, exact hx, },
-  },
-  {
-    change π x ∈ _,
+    { right, exact hx, } },
+  { change π x ∈ _,
     cases hx,
     { left, rwa eq_iff', },
-    { right, exact hx, },
-  }
+    { right, exact hx, } }
 end
 
 lemma cl_pullback_insert {t : reg T} {S : set (geom T)} : cl (π ⁻¹' insert (π t) S) = cl (insert t (π ⁻¹' S)) := 
@@ -322,73 +264,52 @@ end
 instance pregeom_instance : pregeom (geom T) :=
 begin
   split; intros,
-  {
-    exact inclusive_helper,
-  },
-  {
-    intros a ha,
+  { exact inclusive_helper, },
+  { intros a ha,
     rcases quot.exists_rep a with ⟨t,ht⟩,
     change π _ = _ at ht,
     refine ⟨t,_,ht⟩,
     have : π ⁻¹' A ≤ π ⁻¹' B, 
-    {
-      change _ ⊆ _,
+    { change _ ⊆ _,
       apply set.preimage_mono,
-      assumption,
-    },
+      assumption, },
     apply monotone this,
     rw ←ht at ha,
-    rwa pi_mem_cl_iff_mem_cl_pullback,
-  },
-  {
-    ext, split; intro hx,
-    {
-      rcases hx with ⟨y,hy,rfl⟩,
+    rwa pi_mem_cl_iff_mem_cl_pullback, },
+  { ext, split; intro hx,
+    { rcases hx with ⟨y,hy,rfl⟩,
       rw cl_pullback_cl_eq_cl_pullback at hy,
-      exact ⟨y,hy,rfl⟩,
-    },
-    {
-      rcases hx with ⟨y,hy,rfl⟩,
+      exact ⟨y,hy,rfl⟩, },
+    { rcases hx with ⟨y,hy,rfl⟩,
       rw ←cl_pullback_cl_eq_cl_pullback at hy,
-      exact ⟨y,hy,rfl⟩,
-    }
+      exact ⟨y,hy,rfl⟩, }
   },
-  {
-    rcases a with ⟨a,ha,rfl⟩,
+  { rcases a with ⟨a,ha,rfl⟩,
     rcases quot.exists_rep y with ⟨t,rfl⟩,
     change _ ∈ cl ( π ⁻¹' insert (π _) _) at ha,
     change π t ∈ _,
     rw cl_pullback_insert at ha,
     have : a ∉ cl (π ⁻¹' S), 
-    {
-      intro contra,
+    { intro contra,
       rw pi_mem_cl_iff_mem_cl_pullback at contra,
-      contradiction,
-    },
+      contradiction, },
     replace this := exchange ha this,
     rw [←pi_mem_cl_iff_mem_cl_pullback, cl_pullback_insert],
-    assumption,
-  },
-  {
-    rcases a with ⟨y,hy,rfl⟩,
+    assumption, },
+  { rcases a with ⟨y,hy,rfl⟩,
     rcases finchar hy with ⟨W,hW1,hW2⟩,
     refine ⟨finset.image π W,_,_⟩,
-    {
-      intros w hw,
+    { intros w hw,
       rw finset.coe_image at hw,
       rcases hw with ⟨u,hu,rfl⟩,
       replace hu := hW1 hu,
-      exact hu,
-    },
-    {
-      rw finset.coe_image,
+      exact hu, },
+    { rw finset.coe_image,
       rw ←pi_mem_cl_iff_mem_cl_pullback, 
       refine monotone _ hW2,
       intros w hw,
       change π w ∈ _,
-      exact set.mem_image_of_mem π hw,
-    }
-  },
+      exact set.mem_image_of_mem π hw, } },
 end
 
 lemma mem_cls_geom {x y : geom T} : x ∈ cls y → x = y := 
@@ -409,21 +330,15 @@ end
 instance geom_instance : geometry (geom T) := 
 begin
   split,
-  {
-    intro x,
+  { intro x,
     ext y, split; intro hy,
     { apply mem_cls_geom, assumption, },
-    {
-      change y = x at hy,
+    { change y = x at hy,
       rw hy,
-      exact mem_cls,
-    }
-  },
-  {
-    change π '' cl (∅ : set (reg T)) = _,
+      exact mem_cls, } },
+  { change π '' cl (∅ : set (reg T)) = _,
     rw reg.regularity,
-    finish,
-  }
+    finish, }
 end
 
 end geom

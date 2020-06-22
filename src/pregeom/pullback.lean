@@ -33,19 +33,13 @@ def pregeom_instance [pregeom T] : pregeom S :=
   begin
     change f ⁻¹' cl (f '' ( f ⁻¹' _) ) = f ⁻¹' _,
     tidy,
-    { 
-      replace a : f x ∈ cl (cl (f '' A)),
-      {
-        refine monotone _ a,
-        tidy,
-      },
-      rwa idempotent at a,
-    },
-    { 
-      apply inclusive,
+    {  replace a : f x ∈ cl (cl (f '' A)),
+      { refine monotone _ a,
+        tidy, },
+      rwa idempotent at a, },
+    {  apply inclusive,
       refine ⟨x,_,by refl⟩,
-      simpa,
-    }
+      simpa, }
   end,
   exchange := λ x y S h1 h2, 
   begin
@@ -58,24 +52,20 @@ def pregeom_instance [pregeom T] : pregeom S :=
   finchar := λ x U hx, 
   begin
     suffices : ∀ {C : finset T}, (↑C ≤ f '' U → ∃ D : finset S, finset.image f D = C ∧ ↑D ≤ U),
-    {
-      rcases finchar hx with ⟨A, h1, h2⟩,
+    { rcases finchar hx with ⟨A, h1, h2⟩,
       rcases this h1 with ⟨B, h3, h4⟩,
       refine ⟨B,h4,_⟩,
       change f x ∈ _,
-      rwa [←finset.coe_image,h3],
-    },
+      rwa [←finset.coe_image,h3], },
     refine finset.induction (by finish) _,
-    {
-      intros t E ht ind h,
+    { intros t E ht ind h,
       rw finset.coe_insert at h,
       have : ↑E ≤ f '' U, by {intros e he, apply h, finish},
       rcases ind this with ⟨D,h1,h2⟩,
       have : t ∈ f '' U, by {apply h, finish},
       rcases this with ⟨s,hs,rfl⟩,
       use insert s D,
-      tidy, 
-    }
+      tidy, }
   end,
   ..show has_cl S, by exact has_cl_instance f
 }

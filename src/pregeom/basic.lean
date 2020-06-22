@@ -60,35 +60,27 @@ lemma mem_cls [pregeom T] {x : T} : x ∈ cls x := inclusive (set.mem_singleton 
 lemma cls_le_iff_mem_cl [pregeom T] {x : T} {S : set T} : cls x ≤ cl S ↔ x ∈ cl S := 
 begin
   split,
-  {
-    intro hx,
+  { intro hx,
     apply hx, 
-    exact mem_cls,
-  },
-  {
-    intro hx,
+    exact mem_cls, },
+  { intro hx,
     suffices : cls x ≤ cl (cl S), by rwa idempotent at this,
     apply monotone, 
     rintros y ⟨rfl⟩, 
-    assumption,
-  }
+    assumption, }
 end
 
 @[simp]
 lemma Sup_le_eq_cl [pregeom T] {S : set T} : Sup { A | (∃ x, A = cls x) ∧ A ≤ cl S } = cl S :=
 begin
   ext, split,
-  {
-    intro hx,
+  { intro hx,
     rcases hx with ⟨A,⟨⟨t,rfl⟩,h⟩,hA⟩,
-    exact h hA,
-  },
-  {
-    intro hx,
+    exact h hA, },
+  { intro hx,
     refine ⟨cls x,⟨⟨x,rfl⟩,_⟩,_⟩,
     { rw cls_le_iff_mem_cl, exact hx },
-    { exact mem_cls },
-  }
+    { exact mem_cls }, }
 end
 
 lemma exchange_cls [pregeom T] {u v : T} (u_in_cls : u ∈ cls v) (u_regular : u ∉ cl (∅ : set T))  : v ∈ cls u :=
@@ -101,52 +93,34 @@ end
 lemma mem_cl_iff_cls_le_cl [pregeom T] {x : T} {S : set T} : x ∈ cl S ↔ cls x ≤ cl S := 
 begin
   split; intro hx,
-  {
-    have : ({x} : set T) ≤ cl S, 
-    {
-      rintros y ⟨hy⟩,
-      assumption,
-    },
+  { have : ({x} : set T) ≤ cl S, 
+    { rintros y ⟨hy⟩,
+      assumption, },
     replace this := monotone this,
     rw idempotent at this,
-    assumption,
-  },
-  {
-    apply hx,
-    exact mem_cls,
-  }
+    assumption, },
+  { apply hx,
+    exact mem_cls, }
 end
 
 lemma cl_cl_union_eq_cl_union [pregeom T] {A B : set T} : cl (cl A ∪ B) = cl (A ∪ B) := 
 begin
   ext, split; intro h,
-  {
-    rw ←idempotent,
+  { rw ←idempotent,
     refine monotone _ h,
     intros y hy,
     cases hy,
-    {
-      refine monotone _ hy,
+    { refine monotone _ hy,
       intros a ha,
-      left, assumption,
-    },
-    {
-      apply inclusive,
-      right, assumption,
-    }
-  },
-  {
-    refine monotone _ h,
+      left, assumption, },
+    { apply inclusive,
+      right, assumption, }},
+  { refine monotone _ h,
     intros z hz,
     cases hz,
-    {
-      left,
-      apply inclusive, assumption,
-    },
-    {
-      right, assumption,
-    }
-  }
+    { left,
+      apply inclusive, assumption, },
+    { right, assumption, }}
 end
 
 lemma cl_union_cl_eq_cl_union [pregeom T] {A B : set T} : cl (A ∪ cl B) = cl (A ∪ B) := 
@@ -172,7 +146,7 @@ begin
   intro hA,
   rw ←cl_union_cl_eq_cl_union,
   suffices : A ∪ cl S = cl S, by rw [this, idempotent],
-  tiny_hammer,
+  tidy, finish,
 end
 
 end pregeom
