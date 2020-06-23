@@ -1,6 +1,8 @@
 import .basic
 import data.set
 
+open_locale classical
+
 /-!
 # The pushforward of a geometry.
 
@@ -9,20 +11,28 @@ and the requirement that ∀ t ∈ T, f ⁻¹({t}) is closed, we can define a cl
 letting cl U := f (cl f ⁻¹ (U))
 -/
 
+
 namespace pregeom
-namespace pushforward
+namespace pullback
 
 open function
-open has_cl
 
-variables {T : Type*} {S : Type*} (f : S → T)
+variables {T : Type*} {S : Type*} [has_cl S] (f : S → T)
 
-[surjective f]
+-- For f : S → T, if S has a closure operator, we say that f has closed fibers if the preimage of
+-- every singleton is closed.
+def has_closed_fibers := (∀ t, f⁻¹' {t} = cl (f⁻¹' {t}))
 
+-- Define the closure on T in the most straightforward way.
+def has_cl_instance  : has_cl T := ⟨ λ U, f '' (cl (f⁻¹' (U))) ⟩ 
 
--- A function has closed fibers if the preimage of every singleton is closed.
-def closed_fibers [has_cl S] (g : S → T) := ∀ t : T, f⁻¹' {t} = cl (f⁻¹' {t})
-
-
-end pushforward
+def pregeom_instance [pregeom S] : pregeom T :=
+{
+  inclusive := sorry,
+  idempotent := sorry,
+  monotone := sorry,
+  exchange := sorry,
+  finchar := sorry,
+}
+end pullback
 end pregeom
