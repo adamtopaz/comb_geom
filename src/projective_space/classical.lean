@@ -4,6 +4,7 @@ import linear_algebra.dimension
 import ..linear_algebra.lincomb
 import ..pregeom.basic
 import ..pregeom.geometrize
+import ..helpers
 
 /--!
 # What is going on here?
@@ -77,6 +78,9 @@ begin
 end
 local attribute [instance] pregeom_instance
 
+@[simp]
+lemma cl_empty : cl (∅ : set V) = {0} := by simp [has_cl.cl]
+
 end vector_space
 
 open vector_space
@@ -91,5 +95,89 @@ abbreviation projectivization := @pregeom.geom V (has_cl_instance k V)
 namespace projectivization
 
 instance : geometry (projectivization k V) := @pregeom.geom.geom_instance V (pregeom_instance k V)
+
+variable {V}
+def homogenize {v : V} : v ≠ 0 → projectivization k V := λ hv, 
+  @pregeom.geom.to_geom V (vector_space.has_cl_instance k V) ⟨v, by simpa [pregeom.reg_set]⟩
+
+-- This proof is fairly messy :(
+theorem homogenize_eq_iff {v w : V} {hv : v ≠ 0} {hw : w ≠ 0} : homogenize k hv = homogenize k hw ↔ 
+  submodule.span k ({v} : set V) = submodule.span k {w} := 
+begin
+  change pregeom.geom.to_geom _ = pregeom.geom.to_geom _ ↔ _,
+  rw pregeom.geom.eq_iff,
+  change _ ⁻¹' _ = _ ⁻¹' _ ↔ _,
+  dsimp,
+  set regs := @pregeom.reg V (vector_space.has_cl_instance k V),
+  set regs_set := @pregeom.reg_set V (vector_space.has_cl_instance k V),
+  have : ∀ {u : regs}, subtype.val '' ({u} : set regs) = { u.1 },
+  { intros u,
+    ext, split; intro hx,
+    { rcases hx with ⟨y,hy,rfl⟩,
+      tauto, },
+    { change _ = _ at hx,
+      rw hx,
+      use u,
+      tauto, } },
+  repeat {rw this}, split; intro h,
+  { ext, split; intro hx,
+    { rw submodule.mem_span_singleton at *,
+      rcases hx with ⟨a,rfl⟩,
+      change subtype.val ⁻¹' ↑(submodule.span _ _) =subtype.val ⁻¹' ↑(submodule.span _ _) at h, 
+      dsimp at h,
+      suffices : w ∈ submodule.span k ({v} : set V), 
+      { rw submodule.mem_span_singleton at this, 
+        rcases this with ⟨b,rfl⟩,
+        use a * b⁻¹,
+        rw [←mul_smul, mul_assoc, mul_comm _ b, mul_inv_cancel, mul_one],
+        intro contra,
+        rw contra at *,
+        rw zero_smul at *,
+        contradiction, },
+      have : w ∈ regs_set,
+      { change w ∉ _,
+        rw cl_empty,
+        assumption, },
+      have : (⟨w,this⟩ : regs) ∈ subtype.val ⁻¹' ↑(submodule.span k ({w} : set V)), 
+      { rw set.mem_preimage, 
+        change w ∈ _,
+        suffices : w ∈ submodule.span k ({w} : set V), by exact this,
+        apply submodule.subset_span,
+        tauto, },
+      rwa ←h at this, },
+    { rw submodule.mem_span_singleton at *,
+      rcases hx with ⟨a,rfl⟩,
+      change subtype.val ⁻¹' ↑(submodule.span _ _) =subtype.val ⁻¹' ↑(submodule.span _ _) at h, 
+      dsimp at h,
+      suffices : v ∈ submodule.span k ({w} : set V), 
+      { rw submodule.mem_span_singleton at this, 
+        rcases this with ⟨b,rfl⟩,
+        use a * b⁻¹,
+        rw [←mul_smul, mul_assoc, mul_comm _ b, mul_inv_cancel, mul_one],
+        intro contra,
+        rw contra at *,
+        rw zero_smul at *,
+        contradiction, },
+      have : v ∈ regs_set,
+      { change v ∉ _,
+        rw cl_empty,
+        assumption, },
+      have : (⟨v,this⟩ : regs) ∈ subtype.val ⁻¹' ↑(submodule.span k ({v} : set V)), 
+      { rw set.mem_preimage, 
+        change v ∈ _,
+        suffices : v ∈ submodule.span k ({v} : set V), by exact this,
+        apply submodule.subset_span,
+        tauto, },
+      rwa h at this, } },
+  { change subtype.val ⁻¹' ↑(submodule.span _ _) =subtype.val ⁻¹' ↑(submodule.span _ _), 
+    rw h, }
+end
+
+theorem homogenize_eq_iff' {v w : V} {hv : v ≠ 0} {hw : w ≠ 0} : homogenize k hv = homogenize k hw ↔ ∃ x : k, x • v = w := 
+begin
+  rw homogenize_eq_iff,
+  apply submodule.span_singleton_eq_iff,
+  assumption'
+end
 
 end projectivization
