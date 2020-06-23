@@ -1,9 +1,10 @@
 import data.set
+import tactic
 import linear_algebra
 
-variables {T : Type*} {S : set T}
-
 namespace helpers
+
+variables {T : Type*} {S : set T}
 
 lemma smaller {A B: set T} {x : T} (le : A ≤ B) (hx : x ∉ A): A ≤ B \ {x} :=
 begin
@@ -27,6 +28,14 @@ begin
 end
 
 end helpers
+
+namespace set
+
+variables {S : Type*} {T : Type*} (f : S → T)
+
+lemma image_preimage_eq_range_inter {A : set T} : f '' (f ⁻¹' A) = range f ∩ A := by tidy
+
+end set
 
 namespace submodule
 variables {k : Type*} [field k]
