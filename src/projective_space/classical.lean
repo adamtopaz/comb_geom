@@ -101,6 +101,7 @@ def homogenize {v : V} : v ≠ 0 → projectivization k V := λ hv,
   @pregeom.geom.to_geom V (vector_space.has_cl_instance k V) ⟨v, by simpa [pregeom.reg_set]⟩
 
 -- This proof is fairly messy :(
+-- It should probably be split up into several smaller results.
 theorem homogenize_eq_iff {v w : V} {hv : v ≠ 0} {hw : w ≠ 0} : homogenize k hv = homogenize k hw ↔ 
   submodule.span k ({v} : set V) = submodule.span k {w} := 
 begin
