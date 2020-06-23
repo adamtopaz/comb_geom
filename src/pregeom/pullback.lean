@@ -70,6 +70,17 @@ def pregeom_instance [pregeom T] : pregeom S :=
   ..show has_cl S, by exact has_cl_instance f
 }
 
+def pcl [has_cl T] : set S → set S := (has_cl_instance f).cl
+
+
+@[simp]
+lemma image_pcl [has_cl T] {A : set S} : f '' (pcl f A) = (set.range f) ∩ (cl (f '' A)) := 
+begin
+  change f '' (f ⁻¹' _) = _,
+  rw set.image_preimage_eq_inter_range,
+  finish,
+end
+
 end pullback
 
 namespace geom
