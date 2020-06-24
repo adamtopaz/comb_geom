@@ -27,6 +27,8 @@ begin
   finish,
 end
 
+lemma Sup_singletons_eq (S : set T) : Sup (singleton '' S) = S := sorry
+
 end helpers
 
 namespace set

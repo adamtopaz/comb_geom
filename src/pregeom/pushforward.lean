@@ -1,5 +1,6 @@
 import .basic
 import data.set
+import ..helpers
 
 open_locale classical
 
@@ -19,15 +20,15 @@ open function
 variables {T : Type*} {S : Type*} (f : S → T)
 include f
 
-def has_closed_fibers [has_cl S] := ∀ t, f⁻¹' ({t}) = cl (f⁻¹' {t})
+def has_subclosed_fibers [has_cl S] := ∀ s, f ⁻¹' (f '' ({s} : set S)) ≤ cls s
 
 def has_cl_instance [has_cl S] : has_cl T := ⟨λ (U : set T), f '' (cl (f ⁻¹' U))⟩
 
 variable {f}
 private lemma inclusive_helper [pregeom S] (sf : surjective f) {A : set T} :
-  A ≤ f '' (cl (f ⁻¹' A)) := sorry
+  A ≤ f '' (cl (f ⁻¹' A)) := λ a ha, by rcases sf a with ⟨b,rfl⟩; exact ⟨b,inclusive ha,rfl⟩
 
-def pregeom_instance [pregeom S] (cf : has_closed_fibers f) (sf : surjective f) : pregeom T :=
+def pregeom_instance [pregeom S] (cf : has_subclosed_fibers f) (sf : surjective f) : pregeom T :=
 { inclusive := λ U u hu, inclusive_helper sf hu,
   monotone := λ A B h,
   begin
@@ -42,7 +43,23 @@ def pregeom_instance [pregeom S] (cf : has_closed_fibers f) (sf : surjective f) 
     change _ ∈ f '' _,
     rcases hx with ⟨y,hy,rfl⟩,
     refine ⟨y,_,rfl⟩,
-    sorry,
+    change _ ∈ cl (_ ⁻¹' (f '' _)) at hy,
+    suffices : y ∈ cl (cl (f ⁻¹' U)), by rwa idempotent at this,
+    set X := cl (f ⁻¹' U),
+    have : f ⁻¹' (f '' X) = Sup ((λ x, f ⁻¹' (f '' ({x} : set S))) '' X),
+    { sorry, },
+    rw this at hy,
+    have : Sup ((λ x, f ⁻¹' (f '' ({x} : set S))) '' X) ≤ Sup ((λ x, cls x) '' X),
+    { sorry, }, 
+    replace hy := monotone this hy,
+    unfold cls at hy,
+    have : ((λ (x : S), cl {x}) '' X) = map_cl ((singleton : S → set S) '' X),
+    { sorry, },
+    rw [this,cl_Sup_cl] at hy,
+    have : Sup ((singleton : S → set S) '' X) = X,
+    { sorry, },
+    rw this at hy,
+    assumption,
   end,
   exchange :=
   begin
