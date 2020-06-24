@@ -57,7 +57,7 @@ def cls [has_cl T] (x : T) := cl ({x} : set T)
 lemma mem_cls [pregeom T] {x : T} : x ∈ cls x := inclusive (set.mem_singleton x)
 
 @[simp]
-lemma cls_le_iff_mem_cl [pregeom T] {x : T} {S : set T} : cls x ≤ cl S ↔ x ∈ cl S := 
+lemma cls_le_iff_mem_cl [pregeom T] {x : T} {S : set T} : cls x ⊆ cl S ↔ x ∈ cl S := 
 begin
   split,
   { intro hx,
@@ -71,7 +71,7 @@ begin
 end
 
 @[simp]
-lemma Sup_le_eq_cl [pregeom T] {S : set T} : Sup { A | (∃ x, A = cls x) ∧ A ≤ cl S } = cl S :=
+lemma Sup_le_eq_cl [pregeom T] {S : set T} : Sup { A | (∃ x, A = cls x) ∧ A ⊆ cl S } = cl S :=
 begin
   ext, split,
   { intro hx,
@@ -79,7 +79,7 @@ begin
     exact h hA, },
   { intro hx,
     refine ⟨cls x,⟨⟨x,rfl⟩,_⟩,_⟩,
-    { rw cls_le_iff_mem_cl, exact hx },
+    { change _ ⊆ _, rw cls_le_iff_mem_cl, exact hx },
     { exact mem_cls }, }
 end
 
@@ -147,6 +147,30 @@ begin
   rw ←cl_union_cl_eq_cl_union,
   suffices : A ∪ cl S = cl S, by rw [this, idempotent],
   tidy, finish,
+end
+
+/-- If `As` is a set of sets, `map_cl As` is the set of sets obtained by
+    applying `cl` to every memeber of `As`. -/
+def map_cl [has_cl T] : set (set T) → set (set T) := set.image cl
+
+lemma le_map_cl [pregeom T] (As : set (set T)) : Sup As ≤ Sup (map_cl As) := 
+  λ a ⟨A,hA,ha⟩, ⟨cl A,⟨A,hA,rfl⟩,inclusive ha⟩
+
+lemma cl_le_cl_Sup [pregeom T] {As : set (set T)} {A : set T} : A ∈ As → 
+  cl A ≤ cl (Sup As) := λ h, monotone (λ x hx, ⟨A,h,hx⟩)
+
+lemma map_cl_le_cl_Sup [pregeom T] (As : set (set T)) : Sup (map_cl As) ≤ cl (Sup As) :=
+  λ x ⟨B,⟨C,hC,h⟩,hx⟩, by rw ←h at *; exact cl_le_cl_Sup hC hx
+
+@[simp]
+lemma cl_Sup_cl [pregeom T] {As : set (set T)} : cl (Sup (map_cl As)) = cl (Sup As) := 
+begin
+  ext,
+  refine ⟨_,λ h, monotone (le_map_cl _) h⟩,
+  intro hx,
+  rw ←idempotent,
+  refine monotone _ hx,
+  apply map_cl_le_cl_Sup,
 end
 
 end pregeom

@@ -23,34 +23,26 @@ def has_closed_fibers [has_cl S] := ∀ t, f⁻¹' ({t}) = cl (f⁻¹' {t})
 
 def has_cl_instance [has_cl S] : has_cl T := ⟨λ (U : set T), f '' (cl (f ⁻¹' U))⟩
 
+variable {f}
+private lemma inclusive_helper [pregeom S] (sf : surjective f) {A : set T} :
+  A ≤ f '' (cl (f ⁻¹' A)) := sorry
+
 def pregeom_instance [pregeom S] (cf : has_closed_fibers f) (sf : surjective f) : pregeom T :=
-{ inclusive := λ U u hu,
-  begin
-    change _ ∈ f '' _,
-    rcases sf u with ⟨v,rfl⟩,
-    exact ⟨v,inclusive hu,rfl⟩,
-  end,
+{ inclusive := λ U u hu, inclusive_helper sf hu,
   monotone := λ A B h,
   begin
     replace h := @set.monotone_preimage _ _ f _ _ h,
     replace h := monotone h,
     exact @set.monotone_image _ _ f _ _ h,
   end,
-  idempotent :=
+  idempotent := λ U,
   begin
-    -- This one will be harder, uses the closed fibers
-    intro U,
     ext,
-    split,
-    {
-      sorry,
-    },
-    {
-      -- Would be great if we could access previously defined instances here
-      intro hx,
-      change _ ∈ f '' _,
-      sorry,
-    },
+    refine ⟨λ hx, _,λ hx, inclusive_helper sf hx⟩,
+    change _ ∈ f '' _,
+    rcases hx with ⟨y,hy,rfl⟩,
+    refine ⟨y,_,rfl⟩,
+    sorry,
   end,
   exchange :=
   begin

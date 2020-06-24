@@ -182,6 +182,7 @@ begin
   suffices : cls y ≤ cl S, by exact this mem_cls,
   rw eq_iff at h,
   rw ←h,
+  change _ ⊆ _,
   rw cls_le_iff_mem_cl,
   assumption,
 end
