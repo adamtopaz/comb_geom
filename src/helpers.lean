@@ -27,8 +27,6 @@ begin
   finish,
 end
 
-lemma Sup_singletons_eq (S : set T) : Sup (singleton '' S) = S := sorry
-
 end helpers
 
 namespace set
@@ -36,6 +34,35 @@ namespace set
 variables {S : Type*} {T : Type*} (f : S → T)
 
 lemma image_preimage_eq_range_inter {A : set T} : f '' (f ⁻¹' A) = range f ∩ A := by tidy
+
+@[simp]
+lemma Sup_singleton_eq (S : set T) : Sup ((singleton : T → set T) '' S) = S :=
+  set.ext $ λ x, ⟨λ ⟨_, ⟨_,h,rfl⟩, rfl⟩, h, λ h, ⟨{x}, ⟨x, h, rfl⟩,rfl⟩⟩
+
+/-
+begin
+  ext, split; intro hx,
+  { tidy },
+  { use {x}, finish }
+end
+-/
+
+lemma Sup_preimage {X : Type*} (S : set (set T)) (f : X → T) : f ⁻¹' (Sup S) = Sup ((λ A, f ⁻¹' A) '' S) := 
+  set.ext $ λ x, ⟨λ ⟨U,hU,hxU⟩, ⟨f ⁻¹' U, ⟨U,hU,rfl⟩, hxU⟩, λ ⟨U,⟨V,hUV,rfl⟩,hxU⟩, ⟨V,hUV,hxU⟩⟩
+
+/-
+begin
+  ext, split; intro hx,
+  { rcases hx with ⟨U,hU,hxU⟩,
+    refine ⟨f ⁻¹' U,_,hxU⟩,
+    refine ⟨U,hU,rfl⟩,
+-- this will have some problems, but whatever.
+     },
+  { rcases hx with ⟨U, ⟨V,hUV,rfl⟩, hxU⟩,
+    change f x ∈ _,
+    exact ⟨V,hUV, hxU⟩, }
+end
+-/
 
 end set
 
@@ -68,4 +95,5 @@ split; intro h,
     { intro contra, rw [contra, zero_smul] at *, contradiction },
     rw span_singleton_eq_iff_smul_nonzero ha, }
 end
+
 end submodule
