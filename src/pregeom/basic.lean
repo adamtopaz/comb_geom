@@ -103,6 +103,7 @@ begin
     exact mem_cls, }
 end
 
+@[simp]
 lemma cl_cl_union_eq_cl_union [pregeom T] {A B : set T} : cl (cl A ∪ B) = cl (A ∪ B) := 
 begin
   ext, split; intro h,

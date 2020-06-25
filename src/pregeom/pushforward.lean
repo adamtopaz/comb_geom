@@ -28,6 +28,12 @@ variable {f}
 private lemma inclusive_helper [pregeom S] (sf : surjective f) {A : set T} :
   A ≤ f '' (cl (f ⁻¹' A)) := λ a ha, by rcases sf a with ⟨b,rfl⟩; exact ⟨b,inclusive ha,rfl⟩
 
+private lemma exchange_helper [pregeom S] (sf : surjective f) (cf : has_subclosed_fibers f) {s : S} {U : set S} :
+  cl ((f ⁻¹' (f '' ({s} : set S)) ∪ U)) = cl (insert s U) := sorry
+
+private lemma preimage_insert {s : S} {A : set T} :
+  f ⁻¹' insert (f s) A = f ⁻¹' (f '' ({s}: set S)) ∪ f ⁻¹' A := sorry
+
 def pregeom_instance [pregeom S] (cf : has_subclosed_fibers f) (sf : surjective f) : pregeom T :=
 { inclusive := λ U u hu, inclusive_helper sf hu,
   monotone := λ A B h,
@@ -70,8 +76,17 @@ def pregeom_instance [pregeom S] (cf : has_subclosed_fibers f) (sf : surjective 
   end,
   exchange :=
   begin
-    intros x y U hx1 hx2,
-    sorry,
+    rintros x y U ⟨z,hz,rfl⟩ hx2,
+    rcases sf y with ⟨w,rfl⟩,
+    rw [preimage_insert, exchange_helper sf @cf] at hz,
+    have : z ∉ cl (f ⁻¹' U),
+    { intro contra,
+      have : f z ∈ f '' (cl (f ⁻¹' U)), by exact set.mem_image_of_mem f contra,
+      contradiction },
+    refine ⟨w,_,rfl⟩,
+    rw [preimage_insert,exchange_helper sf @cf],
+    apply exchange,
+    assumption',
   end,
   finchar :=
   begin
