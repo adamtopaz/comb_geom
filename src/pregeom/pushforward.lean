@@ -56,8 +56,7 @@ private lemma preimage_insert {s : S} {A : set T} :
 begin
   ext,
   split,
-  {
-    intro hx,
+  { intro hx,
     change f x ∈ _ at hx,
     cases hx,
     { left,
@@ -130,7 +129,19 @@ def pregeom_instance [pregeom S] (cf : has_subclosed_fibers f) (sf : surjective 
   finchar :=
   begin
     intros x U hx,
-    sorry,
+    rcases hx with ⟨s, hs, rfl⟩,
+    rcases finchar hs with ⟨A, h1, h2⟩,
+    use finset.image f A,
+    split,
+    { intros y hy,
+      rw finset.coe_image at hy,
+      rcases hy with ⟨z, hz, rfl⟩,
+      replace hz := h1 hz,
+      assumption, },
+    { rw finset.coe_image,
+      refine ⟨s, monotone _ h2, rfl⟩,
+      intros z hz,
+      exact ⟨z, hz, rfl⟩, },
   end,
   ..show has_cl T, by exact has_cl_instance f }
 
