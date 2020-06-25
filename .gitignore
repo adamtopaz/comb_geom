@@ -2,3 +2,4 @@
 /_target
 /leanpkg.path
 /src/scratch.lean
+.vscode/
