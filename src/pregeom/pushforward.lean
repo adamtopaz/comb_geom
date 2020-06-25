@@ -29,10 +29,49 @@ private lemma inclusive_helper [pregeom S] (sf : surjective f) {A : set T} :
   A ≤ f '' (cl (f ⁻¹' A)) := λ a ha, by rcases sf a with ⟨b,rfl⟩; exact ⟨b,inclusive ha,rfl⟩
 
 private lemma exchange_helper [pregeom S] (sf : surjective f) (cf : has_subclosed_fibers f) {s : S} {U : set S} :
-  cl ((f ⁻¹' (f '' ({s} : set S)) ∪ U)) = cl (insert s U) := sorry
+  cl ((f ⁻¹' (f '' ({s} : set S)) ∪ U)) = cl (insert s U) :=
+begin
+  ext,
+  split,
+  { intro hx,
+    change x ∈ cl ({s} ∪ U),
+    rw ← cl_cl_union_eq_cl_union,
+    change x ∈ cl (cls s ∪ U),
+    refine monotone _ hx,
+    intros y hy,
+    cases hy with hl hr,
+    { left,
+      apply cf,
+      assumption, },
+    { right,
+      assumption, } },
+  { intro hx,
+    refine monotone _ hx,
+    tidy,
+    finish, },
+end
 
 private lemma preimage_insert {s : S} {A : set T} :
-  f ⁻¹' insert (f s) A = f ⁻¹' (f '' ({s}: set S)) ∪ f ⁻¹' A := sorry
+  f ⁻¹' insert (f s) A = f ⁻¹' (f '' ({s}: set S)) ∪ f ⁻¹' A :=
+begin
+  ext,
+  split,
+  {
+    intro hx,
+    change f x ∈ _ at hx,
+    cases hx,
+    { left,
+      simpa, },
+    { right,
+      assumption, }, },
+  { intro hx,
+    cases hx,
+    { left,
+      rw set.image_singleton at hx,
+      assumption, },
+    { right,
+      assumption, }, },
+end
 
 def pregeom_instance [pregeom S] (cf : has_subclosed_fibers f) (sf : surjective f) : pregeom T :=
 { inclusive := λ U u hu, inclusive_helper sf hu,
