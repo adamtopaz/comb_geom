@@ -54,7 +54,7 @@ def pregeom_instance [pregeom S] (cf : has_subclosed_fibers f) (sf : surjective 
     rw this at hy,
     have : Sup ((λ x, f ⁻¹' (f '' ({x} : set S))) '' X) ≤ Sup ((λ x, cls x) '' X),
     {
-      -- todo: compress
+      -- todo: compress from here down
       intros s hs,
       rcases hs with ⟨U, ⟨x, hx, hU⟩ , hs⟩,
       unfold Sup has_Sup.Sup complete_lattice.Sup,
@@ -84,7 +84,9 @@ def pregeom_instance [pregeom S] (cf : has_subclosed_fibers f) (sf : surjective 
     },
     rw [this,cl_Sup_cl] at hy,
     have : Sup ((singleton : S → set S) '' X) = X,
-    { sorry, },
+    {
+      tidy,
+    },
     rw this at hy,
     assumption,
   end,
