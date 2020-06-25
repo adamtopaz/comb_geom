@@ -20,13 +20,19 @@ open function
 variables {T : Type*} {S : Type*} (f : S → T)
 include f
 
-def has_subclosed_fibers [has_cl S] := ∀ s, f ⁻¹' (f '' ({s} : set S)) ≤ cls s
+def has_subclosed_fibers [has_cl S] := ∀ {s}, f ⁻¹' (f '' ({s} : set S)) ≤ cls s
 
 def has_cl_instance [has_cl S] : has_cl T := ⟨λ (U : set T), f '' (cl (f ⁻¹' U))⟩
 
 variable {f}
 private lemma inclusive_helper [pregeom S] (sf : surjective f) {A : set T} :
   A ≤ f '' (cl (f ⁻¹' A)) := λ a ha, by rcases sf a with ⟨b,rfl⟩; exact ⟨b,inclusive ha,rfl⟩
+
+private lemma exchange_helper [pregeom S] (sf : surjective f) (cf : has_subclosed_fibers f) {s : S} {U : set S} :
+  cl ((f ⁻¹' (f '' ({s} : set S)) ∪ U)) = cl (insert s U) := sorry
+
+private lemma preimage_insert {s : S} {A : set T} :
+  f ⁻¹' insert (f s) A = f ⁻¹' (f '' ({s}: set S)) ∪ f ⁻¹' A := sorry
 
 def pregeom_instance [pregeom S] (cf : has_subclosed_fibers f) (sf : surjective f) : pregeom T :=
 { inclusive := λ U u hu, inclusive_helper sf hu,
@@ -53,23 +59,16 @@ def pregeom_instance [pregeom S] (cf : has_subclosed_fibers f) (sf : surjective 
       tidy, },
     rw this at hy,
     have : Sup ((λ x, f ⁻¹' (f '' ({x} : set S))) '' X) ≤ Sup ((λ x, cls x) '' X),
-    { -- todo: compress from here down
-      intros s hs,
-      rcases hs with ⟨U, ⟨x, hx, hU⟩ , hs⟩,
-      unfold Sup has_Sup.Sup complete_lattice.Sup,
-      simp at *,
-      use x,
-      split,
-      assumption,
-      rw ← hU at hs,
-      tidy,
-      suffices : s ∈ f ⁻¹' (f '' {x}), by apply cf; exact this,
-      simpa }, 
+    { intros s hs,
+      rcases hs with ⟨U, ⟨x, hx, rfl⟩ , hs⟩,
+      change s ∈ f ⁻¹' _ at hs,
+      exact ⟨cls x, ⟨x,hx,rfl⟩, cf hs⟩ }, 
     replace hy := monotone this hy,
     unfold cls at hy,
-    have : ((λ (x : S), cl {x}) '' X) = map_cl ((singleton : S → set S) '' X),
-    { ext,
-      refine ⟨by intro hx; unfold map_cl; tidy, by tidy⟩ },
+    have : ((λ (x : S), cls x) '' X) = map_cl ((singleton : S → set S) '' X),
+    { unfold map_cl,
+      tidy, },
+    unfold cls at this,
     rw [this,cl_Sup_cl] at hy,
     have : Sup ((singleton : S → set S) '' X) = X, by tidy,
     rw this at hy,
@@ -77,8 +76,17 @@ def pregeom_instance [pregeom S] (cf : has_subclosed_fibers f) (sf : surjective 
   end,
   exchange :=
   begin
-    intros x y U hx1 hx2,
-    sorry,
+    rintros x y U ⟨z,hz,rfl⟩ hx2,
+    rcases sf y with ⟨w,rfl⟩,
+    rw [preimage_insert, exchange_helper sf @cf] at hz,
+    have : z ∉ cl (f ⁻¹' U),
+    { intro contra,
+      have : f z ∈ f '' (cl (f ⁻¹' U)), by exact set.mem_image_of_mem f contra,
+      contradiction },
+    refine ⟨w,_,rfl⟩,
+    rw [preimage_insert,exchange_helper sf @cf],
+    apply exchange,
+    assumption',
   end,
   finchar :=
   begin
