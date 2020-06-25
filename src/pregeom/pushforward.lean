@@ -20,7 +20,7 @@ open function
 variables {T : Type*} {S : Type*} (f : S → T)
 include f
 
-def has_subclosed_fibers [has_cl S] := ∀ s, f ⁻¹' (f '' ({s} : set S)) ≤ cls s
+def has_subclosed_fibers [has_cl S] := ∀ {s}, f ⁻¹' (f '' ({s} : set S)) ≤ cls s
 
 def has_cl_instance [has_cl S] : has_cl T := ⟨λ (U : set T), f '' (cl (f ⁻¹' U))⟩
 
@@ -53,40 +53,18 @@ def pregeom_instance [pregeom S] (cf : has_subclosed_fibers f) (sf : surjective 
       tidy, },
     rw this at hy,
     have : Sup ((λ x, f ⁻¹' (f '' ({x} : set S))) '' X) ≤ Sup ((λ x, cls x) '' X),
-    {
-      -- todo: compress from here down
-      intros s hs,
-      rcases hs with ⟨U, ⟨x, hx, hU⟩ , hs⟩,
-      unfold Sup has_Sup.Sup complete_lattice.Sup,
-      simp at *,
-      use x,
-      split,
-      assumption,
-      rw ← hU at hs,
-      tidy,
-      suffices : s ∈ f ⁻¹' (f '' {x}), by apply cf; exact this,
-      simpa,
-    }, 
+    { intros s hs,
+      rcases hs with ⟨U, ⟨x, hx, rfl⟩ , hs⟩,
+      change s ∈ f ⁻¹' _ at hs,
+      exact ⟨cls x, ⟨x,hx,rfl⟩, cf hs⟩ }, 
     replace hy := monotone this hy,
     unfold cls at hy,
-    have : ((λ (x : S), cl {x}) '' X) = map_cl ((singleton : S → set S) '' X),
-    {
-      ext,
-      split,
-      {
-        intro hx,
-        unfold map_cl,
-        tidy,
-      },
-      {
-        tidy,
-      },
-    },
+    have : ((λ (x : S), cls x) '' X) = map_cl ((singleton : S → set S) '' X),
+    { unfold map_cl,
+      tidy, },
+    unfold cls at this,
     rw [this,cl_Sup_cl] at hy,
-    have : Sup ((singleton : S → set S) '' X) = X,
-    {
-      tidy,
-    },
+    have : Sup ((singleton : S → set S) '' X) = X, by tidy,
     rw this at hy,
     assumption,
   end,
