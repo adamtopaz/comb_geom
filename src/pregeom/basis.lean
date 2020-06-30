@@ -3,6 +3,7 @@ import tactic
 import .basic
 import ..helpers
 import data.set
+import set_theory.cardinal
 
 open_locale classical
 
@@ -253,5 +254,16 @@ begin
   { tidy, }
 end
 
+
 end basis
 end pregeom
+
+
+/-
+  The dimension of a pregeometry T is the minimum cardinality over all the bases of T.
+  This is well-defined, as every pregeometry has a basis.
+-/
+noncomputable def pregeom.dim : cardinal :=
+cardinal.min
+  (nonempty_subtype.2 (@pregeom.basis.exists_basis T _))
+  (λ S, cardinal.mk S.val)
