@@ -255,10 +255,6 @@ begin
 end
 
 
-end basis
-end pregeom
-
-
 /-
   The dimension of a pregeometry T is the minimum cardinality over all the bases of T.
   This is well-defined, as every pregeometry has a basis.
@@ -267,3 +263,25 @@ noncomputable def pregeom.dim : cardinal :=
 cardinal.min
   (nonempty_subtype.2 (@pregeom.basis.exists_basis T _))
   (λ S, cardinal.mk S.val)
+
+/-
+  Precursor to the dimension theorem. The cardinality of any basis is less than or equal
+  to the cardinality of any other basis.
+-/
+theorem basis_card_le_basis_card {B1 B2 : set T} (hb1 : is_basis B1) (hb2 : is_basis B2)
+  : cardinal.mk B1 ≤ cardinal.mk B2 :=
+begin
+  sorry,
+end
+
+/-
+  The dimension theorem, every basis of a pregeometry has the same cardinality.
+-/
+theorem basis_card_eq_basis_card {B1 B2 : set T} (hb1 : is_basis B1) (hbs : is_basis B2)
+  : cardinal.mk B1 = cardinal.mk B2 :=
+begin
+  sorry,
+end
+
+end basis
+end pregeom
