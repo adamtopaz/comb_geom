@@ -268,9 +268,13 @@ cardinal.min
   Precursor to the dimension theorem. The cardinality of any basis is less than or equal
   to the cardinality of any other basis.
 -/
-theorem basis_card_le_basis_card {B1 B2 : set T} (hb1 : is_basis B1) (hb2 : is_basis B2)
+theorem basis_card_le_spanning_card {B1 B2 : set T} (hb1 : is_basis B1) (hb2 : is_spanning B2)
   : cardinal.mk B1 ≤ cardinal.mk B2 :=
 begin
+  rw basis_iff_minimal_spanning at hb1,
+  cases hb1 with hl hr,
+  replace hr := hr B2,
+  by_contradiction contra,
   sorry,
 end
 
@@ -279,11 +283,7 @@ end
 -/
 theorem basis_card_eq_basis_card {B1 B2 : set T} (hb1 : is_basis B1) (hb2 : is_basis B2)
   : cardinal.mk B1 = cardinal.mk B2 :=
-begin
-  apply le_antisymm,
-  exact basis_card_le_basis_card hb1 hb2,
-  exact basis_card_le_basis_card hb2 hb1,
-end
+  le_antisymm (basis_card_le_spanning_card hb1 hb2.right) (basis_card_le_spanning_card hb2 hb1.right)
 
 end basis
 end pregeom
