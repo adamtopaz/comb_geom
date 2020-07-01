@@ -51,30 +51,35 @@ theorem basis_card_le_spanning_card {B1 B2 : set T} (hb1 : is_basis B1) (hb2 : i
 begin 
   by_contradiction contra,
   rw not_le at contra,
-  have claim : ∀ (t : T), ∃ S : finset T, S ≠ (∅ : finset T) ∧ ↑S ≤ B1 ∧ t ∈ cl (↑S : set T),
+  have finite_generator : ∀ (t : T), ∃ S : finset T, S ≠ (∅ : finset T) ∧ ↑S ≤ B1 ∧ t ∈ cl (↑S : set T),
   {
     intro t,
     rcases finchar (hb1.2 t) with ⟨S,h1,h2⟩,
     by_cases hS : S = ∅,
     {
-      rw hS at *,
-      rw finset.coe_empty at *,
+      rw hS at h1 h2,
       have : ∃ b : T, b ∈ B1, by exact has_elem_of_nonempty h,
       cases this with b hb,
       use insert b (∅ : finset T),
       exact ⟨by tidy ,by tidy,monotone (by tidy) h2⟩,
     },
     { exact ⟨S,hS,h1,h2⟩, }
-  }
-  --set family := λ t, classical.indefinite_description _ (claim t),
-  --set family : B2 → set T := λ (t : B2), ↑(classical.some (claim t)),
-  --set E := ⋃ j, (↑(family j).val : set T),
-  --have E_le_B1 : E ≤ B1,
-  --{ intros e he,
-  --  rcases he with ⟨U,⟨b,rfl⟩,he⟩,
-  --  exact (family b).2.1 he, },
-  --cases le_or_lt cardinal.omega (cardinal.mk B2) with hO hO,
-  sorry,
+  },
+  set family := λ t, classical.indefinite_description _ (finite_generator t),
+  set E := ⋃ t, (↑(family t).val : set T),
+  have E_le_B1 : E ≤ B1, by 
+  { intros e he,
+    rcases he with ⟨U,⟨b,rfl⟩,he⟩,
+    exact (family b).2.2.1 he, },
+  cases le_or_lt cardinal.omega (cardinal.mk B2) with hO hO,
+  {
+    -- Infinite case
+    sorry,
+  },
+  {
+    -- Finite case
+    sorry,
+  },
 end
 
 /-
