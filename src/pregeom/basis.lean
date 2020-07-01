@@ -3,7 +3,7 @@ import tactic
 import .basic
 import ..helpers
 import data.set
-import set_theory.cardinal
+
 
 open_locale classical
 
@@ -34,7 +34,6 @@ def is_basis (S : set T) := is_indep S ∧ is_spanning S
 @[simp]
 lemma super_spans {A B : set T} {spans : is_spanning A} (le : A ≤ B): is_spanning B :=
 begin
-  unfold is_spanning at *,
   have mono: cl A ≤ cl B, by exact pregeom.monotone le,
   intro t,
   replace spans := spans t,
@@ -254,36 +253,6 @@ begin
   { tidy, }
 end
 
-
-/-
-  The dimension of a pregeometry T is the minimum cardinality over all the bases of T.
-  This is well-defined, as every pregeometry has a basis.
--/
-noncomputable def pregeom.dim : cardinal :=
-cardinal.min
-  (nonempty_subtype.2 (@pregeom.basis.exists_basis T _))
-  (λ S, cardinal.mk S.val)
-
-/-
-  Precursor to the dimension theorem. The cardinality of any basis is less than or equal
-  to the cardinality of any other basis.
--/
-theorem basis_card_le_spanning_card {B1 B2 : set T} (hb1 : is_basis B1) (hb2 : is_spanning B2)
-  : cardinal.mk B1 ≤ cardinal.mk B2 :=
-begin
-  rw basis_iff_minimal_spanning at hb1,
-  cases hb1 with hl hr,
-  replace hr := hr B2,
-  by_contradiction contra,
-  sorry,
-end
-
-/-
-  The dimension theorem, every basis of a pregeometry has the same cardinality.
--/
-theorem basis_card_eq_basis_card {B1 B2 : set T} (hb1 : is_basis B1) (hb2 : is_basis B2)
-  : cardinal.mk B1 = cardinal.mk B2 :=
-  le_antisymm (basis_card_le_spanning_card hb1 hb2.right) (basis_card_le_spanning_card hb2 hb1.right)
 
 end basis
 end pregeom
