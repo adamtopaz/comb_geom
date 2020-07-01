@@ -17,6 +17,21 @@ variables {T : Type*} [pregeom T]
   Independent set t1,...,tn, and a spanning set w1,...,wm, then n <= m, and ∃ W' ⊆ W, T ∪ W' spans
 -/
 
+private lemma has_elem_of_nonempty {S : set T} (hs : S ≠ ∅) : ∃ s : T, s ∈ S :=
+begin
+  by_contradiction contra,
+  rw not_exists at contra,
+  have Sempty : S = ∅, by
+  { ext,
+    split,
+    intro hx,
+    specialize contra x,
+    contradiction,
+    intro hx,
+    exfalso,
+    exact hx, },
+  exact hs Sempty,
+end
 
 /-
   The dimension of a pregeometry T is the minimum cardinality over all the bases of T.
@@ -36,13 +51,18 @@ theorem basis_card_le_spanning_card {B1 B2 : set T} (hb1 : is_basis B1) (hb2 : i
 begin 
   by_contradiction contra,
   rw not_le at contra,
-  have claim : ∀ (t : T), ∃ S : finset T, S ≠ ∅ ∧ ↑S ≤ B1 ∧ t ∈ cl ↑S,
+  have claim : ∀ (t : T), ∃ S : finset T, S ≠ (∅ : finset T) ∧ ↑S ≤ B1 ∧ t ∈ cl (↑S : set T),
   {
     intro t,
     rcases finchar (hb1.2 t) with ⟨S,h1,h2⟩,
-    by_cases hS : S = ∅, 
+    by_cases hS : S = ∅,
     {
-      sorry,
+      rw hS at *,
+      rw finset.coe_empty at *,
+      have : ∃ b : T, b ∈ B1, by exact has_elem_of_nonempty h,
+      cases this with b hb,
+      use insert b (∅ : finset T),
+      exact ⟨by tidy ,by tidy,monotone (by tidy) h2⟩,
     },
     { exact ⟨S,hS,h1,h2⟩, }
   }
@@ -54,6 +74,7 @@ begin
   --  rcases he with ⟨U,⟨b,rfl⟩,he⟩,
   --  exact (family b).2.1 he, },
   --cases le_or_lt cardinal.omega (cardinal.mk B2) with hO hO,
+  sorry,
 end
 
 /-
