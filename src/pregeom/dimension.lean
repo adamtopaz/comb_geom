@@ -101,7 +101,13 @@ end
 theorem basis_empty_of_basis_empty {B1 B2 : set T} (hb1 : is_basis B1) (hb2 : is_basis B2)
   : B1 = ∅ → B2 = ∅ :=
 begin
-  sorry,
+  intro b1e,
+  have b2smaller : B1 ≤ B2, by finish,
+  rw basis_iff_minimal_spanning at hb2,
+  replace hb2 := hb2.2,
+  specialize hb2 B1,
+  rw ← b1e,
+  exact hb2 b2smaller hb1.2,
 end
 
 
