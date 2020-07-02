@@ -104,9 +104,9 @@ end
 /-
   The dimension theorem, every basis of a pregeometry has the same cardinality.
 -/
-theorem basis_card_eq_basis_card {B1 B2 : set T} (hb1 : is_basis B1) (hb2 : is_basis B2)
+theorem basis_card_eq_basis_card {B1 B2 : set T} (hb1 : is_basis B1) (hb2 : is_basis B2) (hne : B1 ≠ ∅ ∧ B2 ≠ ∅)
   : cardinal.mk B1 = cardinal.mk B2 :=
-  le_antisymm (basis_card_le_spanning_card hb1 hb2.right) (basis_card_le_spanning_card hb2 hb1.right)
+  le_antisymm (basis_card_le_spanning_card hb1 hb2.right hne.left) (basis_card_le_spanning_card hb2 hb1.right hne.right)
 
 end dimension
 end pregeom
