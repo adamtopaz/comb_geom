@@ -42,6 +42,7 @@ cardinal.min
   (nonempty_subtype.2 (@pregeom.basis.exists_basis T _))
   (λ S, cardinal.mk S.val)
 
+
 /-
   Precursor to the dimension theorem. The cardinality of any basis is less than or equal
   to the cardinality of any other spanning set.
@@ -78,8 +79,26 @@ begin
   },
   {
     -- Finite case
-    sorry,
-  },
+    -- We use that B2 is a spanning set smaller than B1, together with exhange, to get a proper subset C of B1 that spans.
+    -- This is the hard part.
+    have small_spanner : ∃ C : set T, is_spanning C ∧ C < B1, by sorry,
+    cases small_spanner with C hc,
+    -- The set C is a strict subset of B1, and thus not equal to it
+    have CneS : C ≠ B1, by {
+      intro contra,
+      exact ne_of_lt hc.right contra, },
+    -- On the other hand, B1 is a basis, and therefore a minimal spanning set. Hence C = B1
+    have CeqS : C = B1, by {
+      rw basis_iff_minimal_spanning at hb1,
+      replace hb1 := hb1.right,
+      specialize hb1 C,
+      have claim : C ≤ B1, by {
+        intros x hx,
+        exact hc.right.left hx, },
+      symmetry,
+      exact hb1 claim hc.left, },
+    -- So C = B1 and C ≠ B1
+    contradiction, },
 end
 
 /-
