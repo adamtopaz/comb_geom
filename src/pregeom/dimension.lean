@@ -53,19 +53,15 @@ begin
   by_contradiction contra,
   rw not_le at contra,
   have finite_generator : ∀ (t : T), ∃ S : finset T, S ≠ (∅ : finset T) ∧ ↑S ≤ B1 ∧ t ∈ cl (↑S : set T),
-  {
-    intro t,
+  { intro t,
     rcases finchar (hb1.2 t) with ⟨S,h1,h2⟩,
     by_cases hS : S = ∅,
-    {
-      rw hS at h1 h2,
+    { rw hS at h1 h2,
       have : ∃ b : T, b ∈ B1, by exact has_elem_of_nonempty h,
       cases this with b hb,
       use insert b (∅ : finset T),
-      exact ⟨by tidy ,by tidy,monotone (by tidy) h2⟩,
-    },
-    { exact ⟨S,hS,h1,h2⟩, }
-  },
+      exact ⟨by tidy ,by tidy,monotone (by tidy) h2⟩, },
+    { exact ⟨S,hS,h1,h2⟩, } },
   set family := λ t, classical.indefinite_description _ (finite_generator t),
   set E := ⋃ t, (↑(family t).val : set T),
   have E_le_B1 : E ≤ B1, by 
@@ -84,16 +80,16 @@ begin
     have small_spanner : ∃ C : set T, is_spanning C ∧ C < B1, by sorry,
     cases small_spanner with C hc,
     -- The set C is a strict subset of B1, and thus not equal to it
-    have CneS : C ≠ B1, by {
-      intro contra,
+    have CneS : C ≠ B1, by 
+    { intro contra,
       exact ne_of_lt hc.right contra, },
     -- On the other hand, B1 is a basis, and therefore a minimal spanning set. Hence C = B1
-    have CeqS : C = B1, by {
-      rw basis_iff_minimal_spanning at hb1,
+    have CeqS : C = B1, by 
+    { rw basis_iff_minimal_spanning at hb1,
       replace hb1 := hb1.right,
       specialize hb1 C,
-      have claim : C ≤ B1, by {
-        intros x hx,
+      have claim : C ≤ B1, by 
+      { intros x hx,
         exact hc.right.left hx, },
       symmetry,
       exact hb1 claim hc.left, },
@@ -101,12 +97,32 @@ begin
     contradiction, },
 end
 
+
+theorem basis_empty_of_basis_empty {B1 B2 : set T} (hb1 : is_basis B1) (hb2 : is_basis B2)
+  : B1 = ∅ → B2 = ∅ :=
+begin
+  sorry,
+end
+
+
 /-
   The dimension theorem, every basis of a pregeometry has the same cardinality.
 -/
-theorem basis_card_eq_basis_card {B1 B2 : set T} (hb1 : is_basis B1) (hb2 : is_basis B2) (hne : B1 ≠ ∅ ∧ B2 ≠ ∅)
+theorem basis_card_eq_basis_card {B1 B2 : set T} (hb1 : is_basis B1) (hb2 : is_basis B2)
   : cardinal.mk B1 = cardinal.mk B2 :=
-  le_antisymm (basis_card_le_spanning_card hb1 hb2.right hne.left) (basis_card_le_spanning_card hb2 hb1.right hne.right)
+begin
+  by_cases B1 = ∅,
+  { have b2e : B2 = ∅ := basis_empty_of_basis_empty hb1 hb2 h,
+    have he : B1 = B2, by finish,
+    rwa he, },
+  { have b2ne : B2 ≠ ∅, by
+    { intro contra,
+      exact h (basis_empty_of_basis_empty hb2 hb1 contra)},
+    apply le_antisymm,
+    exact basis_card_le_spanning_card hb1 hb2.2 h,
+    exact basis_card_le_spanning_card hb2 hb1.2 b2ne, },
+end
+  
 
 end dimension
 end pregeom
