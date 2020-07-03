@@ -253,7 +253,17 @@ begin
   { tidy, }
 end
 
-lemma indep_of_le_indep {S1 S2 : set T} : S1 ≤ S2 → is_indep S2 → is_indep S1 := sorry
+lemma indep_of_le_indep {S1 S2 : set T} : S1 ≤ S2 → is_indep S2 → is_indep S1 :=
+begin
+  intros hle hindep x hx1,
+  have hx2 : x ∈ S2, by exact hle hx1,
+  have : x ∉ S2 - {x}, by finish,
+  have inc : S1 - {x} ≤ S2 - {x}, by tidy,
+  intro contra,
+  have problem := monotone inc (contra),
+  unfold is_indep at hindep,
+  exact hindep hx2 problem, 
+end
 
 end basis
 end pregeom
