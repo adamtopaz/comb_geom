@@ -253,6 +253,7 @@ begin
   { tidy, }
 end
 
+lemma indep_of_le_indep {S1 S2 : set T} : S1 ≤ S2 → is_indep S2 → is_indep S1 := sorry
 
 end basis
 end pregeom

@@ -33,6 +33,27 @@ begin
   exact hs Sempty,
 end
 
+--theorem strong_exchange {A B : finset T} {S : set T} : ↑A ≤ cl (↑B ∪ S) → ↑A ∩ cl S = ∅ → ↑B ≤ cl (↑A ∪ S) := sorry
+
+theorem foo : ∀ (F : finset T), (∀ (S : set T), is_indep (↑F : set T) → is_spanning S → cardinal.mk ↥(↑F : set T) ≤ cardinal.mk S) := 
+begin
+  refine finset.induction _ _,
+  {
+    intros S hF hS,
+    change cardinal.mk (∅ : set T) ≤ _,
+    rw cardinal.mk_emptyc,
+    exact zero_le (cardinal.mk ↥S),
+  },
+  {
+    intros a F ha ind S hIndep hSpanning,
+    specialize ind S,
+    have : is_indep (↑F : set T), by sorry,
+    specialize ind @this hSpanning,
+    
+
+    sorry,
+  }
+end
 
 /-
   The dimension of a pregeometry T is the minimum cardinality over all the bases of T.
