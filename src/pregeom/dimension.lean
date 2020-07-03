@@ -33,6 +33,7 @@ begin
   exact hs Sempty,
 end
 
+
 /-
   The dimension of a pregeometry T is the minimum cardinality over all the bases of T.
   This is well-defined, as every pregeometry has a basis.
@@ -68,13 +69,16 @@ begin
   { intros e he,
     rcases he with ⟨U,⟨b,rfl⟩,he⟩,
     exact (family b).2.2.1 he, },
-  cases le_or_lt cardinal.omega (cardinal.mk B2) with hO hO,
-  {
-    -- Infinite case
-    sorry,
-  },
-  {
-    -- Finite case
+  cases le_or_lt cardinal.omega (cardinal.mk B2) with hO2 hO2,
+  { -- Infinite case
+    cases le_or_lt cardinal.omega (cardinal.mk B1) with hO1 hO1,
+    {
+      sorry,
+    },
+    { have problem := not_le.mpr (gt_of_ge_of_gt hO2 hO1),
+      replace contra := le_of_lt contra,
+      exact problem contra, }, },
+  { -- Finite case
     -- We use that B2 is a spanning set smaller than B1, together with exhange, to get a proper subset C of B1 that spans.
     -- This is the hard part.
     have small_spanner : ∃ C : set T, is_spanning C ∧ C < B1, by sorry,
