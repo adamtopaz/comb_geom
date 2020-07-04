@@ -47,10 +47,13 @@ begin
   {
     intros a F ha ind S hIndep hSpanning,
     specialize ind S,
-    have : is_indep (↑F : set T), by sorry,
-    specialize ind @this hSpanning,
-    
-
+    have : is_indep (↑F : set T), by 
+    {
+      have thing : ↑F ≤ ↑(insert a F), by 
+      {
+        sorry,
+      },
+    },
     sorry,
   }
 end
