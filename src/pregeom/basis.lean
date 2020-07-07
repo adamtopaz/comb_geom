@@ -253,22 +253,12 @@ begin
   { tidy, }
 end
 
--- Library search didn't work on this one!
-theorem le_of_le_sub {A B : set T} (hle : A ≤ B) (C : set T) : (A - C) ≤ (B - C) :=
-begin
-  rintros _ ⟨hA, hC⟩,
-  exact ⟨hle hA, hC⟩,  -- Ask how to get this into a lambda
-end
-
-theorem le_of_le_sub_singleton {A B : set T} (hle : A ≤ B) : ∀ x : T, A - {x} ≤ B - {x} :=
-  λ x, le_of_le_sub hle {x}
-
 lemma indep_of_le_indep {S1 S2 : set T} : S1 ≤ S2 → is_indep S2 → is_indep S1 :=
 begin
   intros hle hindep x hx1,
   have hx2 := hle hx1,
   have : x ∉ S2 - {x}, by finish,
-  have inc := le_of_le_sub_singleton hle x,
+  have inc := le_sub_singleton_of_le hle x,
   intro contra,
   have problem := monotone inc (contra),
   exact hindep hx2 problem,

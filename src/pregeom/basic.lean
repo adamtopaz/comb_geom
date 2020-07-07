@@ -174,4 +174,25 @@ begin
   apply map_cl_le_cl_Sup,
 end
 
+-- Library search didn't work on this one!
+theorem le_sub_of_le {A B : set T} (hle : A ≤ B) (C : set T) : (A - C) ≤ (B - C) :=
+begin
+  rintros _ ⟨hA, hC⟩,
+  exact ⟨hle hA, hC⟩,  -- Ask how to get this into a lambda
+end
+
+theorem le_sub_singleton_of_le {A B : set T} (hle : A ≤ B) : ∀ x : T, A - {x} ≤ B - {x} :=
+  λ x, le_sub_of_le hle {x}
+
+-- Library search didn't work here, either. Something wrong?
+theorem le_insert_of_le {A B : set T} (hle : A ≤ B) (C : set T) : A ∪ C ≤ B ∪ C :=
+begin
+  intros x hx,
+  cases hx with hA hC,
+  left,
+  exact hle hA,
+  right,
+  exact hC,
+end
+
 end pregeom

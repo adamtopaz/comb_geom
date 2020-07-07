@@ -35,28 +35,37 @@ end
 
 --theorem strong_exchange {A B : finset T} {S : set T} : ↑A ≤ cl (↑B ∪ S) → ↑A ∩ cl S = ∅ → ↑B ≤ cl (↑A ∪ S) := sorry
 
-theorem foo : ∀ (F : finset T), (∀ (S : set T), is_indep (↑F : set T) → is_spanning S → cardinal.mk ↥(↑F : set T) ≤ cardinal.mk S) := 
+/-
+  The cardinality of a finite independent set is bounded above by the cardinality of a spanning set.
+-/
+theorem ind_card_le_spanning_card 
+  (F : finset T) (S : set T) : is_indep (↑F : set T) → is_spanning S → (cardinal.mk ↥(↑F : set T) ≤ cardinal.mk S) := 
 begin
+  revert F,
   refine finset.induction _ _,
   {
-    intros S hF hS,
+    intros,
     change cardinal.mk (∅ : set T) ≤ _,
     rw cardinal.mk_emptyc,
     exact zero_le (cardinal.mk ↥S),
   },
   {
-    intros a F ha ind S hIndep hSpanning,
-    specialize ind S,
+    intros a F ha ind hIndep hSpanning,
     have : is_indep (↑F : set T), by 
     {
-      have thing : ↑F ≤ ↑(insert a F), by 
+      have claim : (↑F : set T) ≤ (↑(insert a F) : set T), by 
       {
-        sorry,
+        -- NOTE by not specifying the target of the coercion, this was made a lot harder.
+        -- As soon as "set T" is specified, it's easy.
+        rw finset.coe_insert,
+        apply set.subset_insert,
       },
+      exact indep_of_le_indep claim hIndep,
     },
     sorry,
   }
 end
+
 
 /-
   The dimension of a pregeometry T is the minimum cardinality over all the bases of T.
