@@ -1,6 +1,7 @@
 import set_theory.cardinal
 import .basis
 import data.finset
+import data.set
 
 open_locale big_operators
 open_locale classical
@@ -51,18 +52,27 @@ begin
   },
   {
     intros a F ha ind hIndep hSpanning,
-    have : is_indep (↑F : set T), by 
+    let FT' := (↑(insert a F) : set T),
+    let FT := (↑F : set T),
+    have hle : FT ≤ FT', by intros f hf; exact finset.mem_insert_of_mem hf,
+    have FTindep : is_indep FT, by
     {
-      have claim : (↑F : set T) ≤ (↑(insert a F) : set T), by 
-      {
-        -- NOTE by not specifying the target of the coercion, this was made a lot harder.
-        -- As soon as "set T" is specified, it's easy.
-        rw finset.coe_insert,
-        apply set.subset_insert,
-      },
-      exact indep_of_le_indep claim hIndep,
+      -- We _should_ just be able to "exact indep_of_le_indep", but that doesn't work.
+      -- Something about implicit variables?
+      apply indep_of_le_indep hle,
+      unfold is_indep at ⊢ hIndep,
+      intros x hx,
+      replace hIndep := hIndep hx,
+      exact hIndep,
     },
-    sorry,
+    have temp : is_indep ↑F, by
+    {
+      -- Again, I don't know why FTindep isn't equal to this.
+      -- Why does "x" have to be introduced?
+      intros x hx,
+      exact FTindep hx,
+    },
+    replace ind := ind temp,
   }
 end
 

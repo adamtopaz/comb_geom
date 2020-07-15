@@ -175,13 +175,13 @@ begin
 end
 
 -- Library search didn't work on this one!
-theorem le_sub_of_le {A B : set T} (hle : A ≤ B) (C : set T) : (A - C) ≤ (B - C) :=
+theorem le_sub_of_le {A B : set T} (hle : A ≤ B) (C : set T) : (A \ C) ≤ (B \ C) :=
 begin
   rintros _ ⟨hA, hC⟩,
   exact ⟨hle hA, hC⟩,  -- Ask how to get this into a lambda
 end
 
-theorem le_sub_singleton_of_le {A B : set T} (hle : A ≤ B) : ∀ x : T, A - {x} ≤ B - {x} :=
+theorem le_sub_singleton_of_le {A B : set T} (hle : A ≤ B) : ∀ x : T, A \ {x} ≤ B \ {x} :=
   λ x, le_sub_of_le hle {x}
 
 -- Library search didn't work here, either. Something wrong?

@@ -1,8 +1,8 @@
 [package]
 name = "comb_geom"
 version = "0.1"
-lean_version = "leanprover-community/lean:3.17.0"
+lean_version = "leanprover-community/lean:3.17.1"
 path = "src"
 
 [dependencies]
-mathlib = {git = "https://github.com/leanprover-community/mathlib", rev = "11ba68730ac1139d0987b8450499c6261fde1f28"}
+mathlib = {git = "https://github.com/leanprover-community/mathlib", rev = "a41a307479d088db817f4eee5aa4c5eadc08ae02"}

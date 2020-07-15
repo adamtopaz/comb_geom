@@ -19,7 +19,7 @@ end
 lemma missing_elem (A : set T) {x : T} (hx : x ∈ A): ¬ (A = A \ {x}) :=
 begin
   intro,
-  have : ∀ t : T, t ∈ A ↔ t ∈ A - {x}, by
+  have : ∀ t : T, t ∈ A ↔ t ∈ A \ {x}, by
   { change ∀ _, _ ↔ _ ∈ A \ {x},
     rw ←a,
     tauto, },

@@ -1,8 +1,8 @@
 import order.zorn
 import tactic
+import data.set
 import .basic
 import ..helpers
-import data.set
 
 
 open_locale classical
@@ -19,14 +19,17 @@ A set `S` is independent if for all `x ∈ S`, the element `x` is not contained 
 
 `cl (S - {x})`
 -/
-def is_indep (S : set T) := ∀ {x : T}, x ∈ S → x ∉ cl (S - {x})
+@[reducible]
+def is_indep (S : set T) := ∀ {x : T}, x ∈ S → x ∉ cl (S \ {x})
 
 /--
 A set `S` is spanning if `∀ t : T, t ∈ cl S`.
 -/
+@[reducible]
 def is_spanning (S : set T) := ∀ t : T, t ∈ cl S
 
 /-- A basis is a spanning independent set. -/
+@[reducible]
 def is_basis (S : set T) := is_indep S ∧ is_spanning S
 
 
@@ -48,11 +51,11 @@ begin
   unfold is_indep at a,
   rw not_forall at a,
   cases a with z hz,
-  simp only [set.mem_insert_iff, set.not_not_mem, set.sub_eq_diff, classical.not_imp] at hz,
+  simp at hz,
   cases hz with h1 h2,
   cases h1,
   { rw h1 at *,
-    suffices : insert t S - {t} ≤ S,
+    suffices : insert t S \ {t} ≤ S,
     { replace h2 := monotone this h2,
       contradiction, },
     tidy, },
@@ -79,14 +82,14 @@ begin
     cases h with h1 h2,
     replace h2 := h2 t,
     by_contradiction contra,
-    have claim1 : S ≤ S' - {t}, 
+    have claim1 : S ≤ S' \ {t}, 
     { intros s hs,
       refine ⟨hle hs,_⟩,
       change s ≠ t,
       intro c,
       rw c at hs, 
       contradiction, },
-    have claim2 : t ∈ cl (S' - {t}), by exact monotone claim1 h2,
+    have claim2 : t ∈ cl (S' \ {t}), by exact monotone claim1 h2,
     replace hindep := hindep ht, 
     contradiction, },
   { rintros ⟨h1,h2⟩,
@@ -110,12 +113,12 @@ begin
 end
 
 /-- If `S` spans and `t ∈ cl (S - {t})` then `S - {t}` spans as well. -/
-lemma subtract_spanning {t : T} {S : set T} : is_spanning S → t ∈ cl (S - {t}) → is_spanning (S - {t}) :=
+lemma subtract_spanning {t : T} {S : set T} : is_spanning S → t ∈ cl (S \ {t}) → is_spanning (S \ {t}) :=
 begin
   intros spanning ht,
   unfold is_spanning,
   intro u,
-  have sets : {t} ⊆ cl (S - {t}), by simpa,
+  have sets : {t} ⊆ cl (S \ {t}), by simpa,
   have pull_in := cl_union_eq sets,
   rw ← pull_in,
   simp,
@@ -138,8 +141,8 @@ begin
     intros S' le spanning,
     tidy,
     by_contradiction contra,
-    have remove : S' ≤ S - {x}, by exact helpers.smaller le contra,
-    have smaller_spans: is_spanning (S - {x}),
+    have remove : S' ≤ S \ {x}, by exact helpers.smaller le contra,
+    have smaller_spans: is_spanning (S \ {x}),
     { apply super_spans remove,
       exact spanning, },
     have x_seperate: x ∉ cl (S - {x}), by
@@ -182,12 +185,12 @@ private lemma union_chain_indep {S : set (indep_sets T)} :
 begin
   intros zorn t ht contra,
   rcases finchar contra with ⟨A,hA1,hA2⟩,
-  suffices claim : ∀ A : finset T, ↑A ≤ indep_sets_union S - {t} →
+  suffices claim : ∀ A : finset T, ↑A ≤ indep_sets_union S \ {t} →
     ∃ B : indep_sets T, B ∈ S ∧ t ∈ B.val ∧ ↑A ≤ B.val,
   { replace claim := claim A hA1,
     rcases claim with ⟨⟨B,hB⟩,hB1,hB2,hB3⟩,
     dsimp at hB2 hB3,
-    have : ↑A ≤ B - {t},
+    have : ↑A ≤ B \ {t},
     { intros a ha,
       refine ⟨hB3 ha,_⟩,
       dsimp,
@@ -257,7 +260,7 @@ lemma indep_of_le_indep {S1 S2 : set T} : S1 ≤ S2 → is_indep S2 → is_indep
 begin
   intros hle hindep x hx1,
   have hx2 := hle hx1,
-  have : x ∉ S2 - {x}, by finish,
+  have : x ∉ S2 \ {x}, by finish,
   have inc := le_sub_singleton_of_le hle x,
   intro contra,
   have problem := monotone inc (contra),
