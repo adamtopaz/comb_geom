@@ -55,24 +55,8 @@ begin
     let FT' := (↑(insert a F) : set T),
     let FT := (↑F : set T),
     have hle : FT ≤ FT', by intros f hf; exact finset.mem_insert_of_mem hf,
-    have FTindep : is_indep FT, by
-    {
-      -- We _should_ just be able to "exact indep_of_le_indep", but that doesn't work.
-      -- Something about implicit variables?
-      apply indep_of_le_indep hle,
-      unfold is_indep at ⊢ hIndep,
-      intros x hx,
-      replace hIndep := hIndep hx,
-      exact hIndep,
-    },
-    have temp : is_indep ↑F, by
-    {
-      -- Again, I don't know why FTindep isn't equal to this.
-      -- Why does "x" have to be introduced?
-      intros x hx,
-      exact FTindep hx,
-    },
-    replace ind := ind temp,
+    have FTindep : is_indep FT, by exact indep_of_le_indep hle hIndep,
+    sorry,
   }
 end
 

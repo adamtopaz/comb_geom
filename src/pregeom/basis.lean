@@ -20,7 +20,7 @@ A set `S` is independent if for all `x ∈ S`, the element `x` is not contained 
 `cl (S - {x})`
 -/
 @[reducible]
-def is_indep (S : set T) := ∀ {x : T}, x ∈ S → x ∉ cl (S \ {x})
+def is_indep (S : set T) := ∀ x : T, x ∈ S → x ∉ cl (S \ {x})
 
 /--
 A set `S` is spanning if `∀ t : T, t ∈ cl S`.
